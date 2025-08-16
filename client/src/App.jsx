@@ -1,9 +1,17 @@
 import React from "react";
+import Header from "./component/Header/Index";
+import Home from "./Pages/Home";
+import './App.css'
 
 export default function App() {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
+    <>
+      <div className="main w-[100%] h-[100vh]">
+        <Header />
+        <Home />
+      </div>
+
+    </>
+
   )
 }
