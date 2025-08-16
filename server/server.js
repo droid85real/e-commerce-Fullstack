@@ -2,6 +2,7 @@
 import express from "express";
 import { PORT } from "./src/config/env.js";
 import productRoutes from "./src/modules/products/product.routes.js";
+import cors from "./src/config/cors.js";
 
 //create server
 const server=express();
@@ -9,6 +10,8 @@ const server=express();
 // server.use("/",(req,res)=>{
 //     res.status(200).send("Backend is working");
 // });
+
+server.use(cors);
 
 // parses JSON bodies
 server.use(express.json());
