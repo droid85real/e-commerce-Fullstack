@@ -6,6 +6,22 @@ export default class ProductRepository{
     static getAll(){
         return products;
     }
+
+    // static method to get one product
+    static getOne(id){
+      return products.find(p=>p.id==id);
+    }
+
+    // static method to get filtered product
+    static getFiltered(minPrice,maxPrice,category){
+      return products.filter((p)=>{
+       return(
+         (!minPrice || p.price>=parseFloat(minPrice)) && 
+         (!maxPrice || p.price < parseFloat(maxPrice)) && 
+         (!category || p.category.toLowerCase()==category.toLowerCase())
+       )
+    });
+    }
 }
 
 // Sample test products
