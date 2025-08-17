@@ -1,41 +1,46 @@
 import React from "react";
-import { BsArrowLeftCircleFill, BsArrowRightCircleFill } from "react-icons/bs";
+import { AiFillFacebook, AiFillInstagram, AiFillLinkedin } from "react-icons/ai";
+import { FaSquareXTwitter } from "react-icons/fa6";
+import { useState } from "react";
+import "../../index.css"; 
 
 const Header = () => {
+  const [value, setValue] = useState("");
   return (
-    // <header>
-    //   <div className="top-strip py-2 border-t-0.5 border-b-0.5 mb-1 bg-slate-800 text-white flex">
-    //     <div className="search flex mx-auto items-center">
-    //       <div className="flex m-auto items-center justify-center gap-1 bg-stone-700 h-[33px] w-[60px] rounded-full  border-2 border-gray-400">
-    //         <div>
-    //           <BsArrowLeftCircleFill size={25} />
-    //         </div>
-    //         <div>
-    //           <BsArrowRightCircleFill size={25} />
-    //         </div>
-    //       </div>
-    //     </div>
-    //     <div className="container w-[80%] m-auto">
-    //       <div className="flex items-center justify-between">
-    //         {/* Left Section */}
-    //         <div className="col1 w-[50%] flex" >
-    //           <p className="text-[14px] font-medium">
-    //             Get up to 50% off new season styles, limited time only
-    //           </p>
-    //         </div>
-
-    //         {/* Right Section */}
-    //         <div className="col2 flex items-center space-x-4 cursor-pointer">
-    //           <p className="hover:text-[red]">Language ▼</p>
-    //           <p className="hover:text-[red]">USD</p>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </header>
-    <>
-
-    </>
+    <header>
+      <div className="top-strip py-2 border-t-1 border-b-[1px] border-s-cyan-50 bg-slate-800 text-white flex">
+        <div className="flex mx-auto items-center px-4  gap-1">
+          <AiFillLinkedin size={25} />
+          <AiFillFacebook size={25} />
+          <AiFillInstagram size={25} />
+          <FaSquareXTwitter size={25} />
+        </div>
+        <div className="container items-center  m-auto">
+          <div className="flex justify-center">
+            <div className="col1 flex" >
+              <p className="text-[14px] font-medium ">
+                Get up to 50% off new season styles, limited time only
+              </p>
+            </div>
+            <div className="col2 flex  space-x-4 cursor-pointer absolute right-10">
+              <select
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                className="border rounded bg-transparent text-[15px] ">
+                <option value="ENGLISH">ENGLISH</option>
+                <option value="HINDI">HINDI</option>
+                <option value="FRENCH">FRENCH</option>
+              </select>
+              <select className="border rounded bg-transparent text-[15px] ">
+                <option value="USD">USD</option>
+                <option value="EURO">EURO </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </header>
   );
 };
 
