@@ -6,13 +6,27 @@ export const ProductContext=createContext();
 const ProductContextProvider =(props)=>{
 
  const fetchProductById = async (id) => {
-  let response = await fetch(`https://dummyjson.com/products/${id}`);
+  let response = await fetch(`/api/products/${id}`);
   let json = await response.json();
   return json;
 };
 
+
+
+  const [search,setSearch]=useState("");
+   const changeHandler =(e)=>{
+        setSearch(e.target.value);
+        console.log(e.target.value);
+    }
+
+
+// const myCart=()=>{
+
+// }
 const contextValue={
-    fetchProductById
+    fetchProductById,
+    search,setSearch,
+    changeHandler
 };
     return(
          <ProductContext.Provider value={contextValue}>
