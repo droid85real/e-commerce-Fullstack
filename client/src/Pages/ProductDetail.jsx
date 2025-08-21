@@ -23,15 +23,15 @@ const ProductDetails = () => {
         
         {/* Product Image */}
         <img
-          src={product.thumbnail}
-          alt={product.title}
+          src={product.imageUrl}
+          alt={product.name}
           className="w-full h-[400px] object-cover rounded-xl shadow-md"
         />
 
         {/* Product Details */}
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {product.title}
+            {product.desc}
           </h1>
           <p className="text-gray-600 mb-6">{product.description}</p>
           <p className="text-2xl font-semibold text-green-600 mb-6">

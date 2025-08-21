@@ -1,18 +1,21 @@
-import React from 'react'
+import React, { useContext, useState } from "react";
 import { LuSearch } from "react-icons/lu";
-import Button from '@mui/material/Button';
-
+import Button from "@mui/material/Button";
+import { ProductContext } from "../../Context/ProductContext";
 
 const Search = () => {
-    return (
-        <>
-            <div className=" flex w-[350px] h-[45px] bg-slate-300 absolute bottom-0 left-[200px] rounded-xl  border-2 border-gray-400">
-                <input type="text" name="" id="" placeholder='enter the text here...' className='w-[300px] p-2 focus:outline-none bg-inherit h-[40px] ms-3' />
-                <Button><LuSearch size={30} /></Button>
-                
-                </div>
-        </>
-    )
-}
+  const {changeHandler}=useContext(ProductContext)
+  return (
+    <div className="flex items-center w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-[45px] bg-slate-300 rounded-xl border-2 border-gray-400 px-2 mx-auto">
+      <input
+        type="text"
+        placeholder="Search products..."
+        className="flex-grow p-2 bg-transparent focus:outline-none text-sm sm:text-base"
+        onChange={(e)=>changeHandler(e)}
+      />
+  <Button><LuSearch size={30} /></Button>
+    </div>
+  );
+};
 
-export default Search
+export default Search;

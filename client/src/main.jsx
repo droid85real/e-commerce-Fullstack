@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import ProductContextProvider from './Context/ProductContext.jsx'
+import 'flowbite';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
