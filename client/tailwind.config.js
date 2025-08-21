@@ -3,9 +3,16 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+     "./node_modules/flowbite/**/*.js" 
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors:{
+        primary:"#ff5252"
+      }
+    },
   },
-  plugins: [],
+  plugins: [
+    require("flowbite/plugin"),
+  ],
 }
