@@ -1,27 +1,26 @@
 //product.repository.js
 import ProductModel from "./product.model.js";
 
-export default class ProductRepository{
+export default class ProductRepository {
+  static getAll() {
+    return products;
+  }
 
-    static getAll(){
-        return products;
-    }
+  // static method to get one product
+  static getOne(id) {
+    return products.find((p) => p.id == id);
+  }
 
-    // static method to get one product
-    static getOne(id){
-      return products.find(p=>p.id==id);
-    }
-
-    // static method to get filtered product
-    static getFiltered(minPrice,maxPrice,category){
-      return products.filter((p)=>{
-       return(
-         (!minPrice || p.price>=parseFloat(minPrice)) && 
-         (!maxPrice || p.price < parseFloat(maxPrice)) && 
-         (!category || p.category.toLowerCase()==category.toLowerCase())
-       )
+  // static method to get filtered product
+  static getFiltered(minPrice, maxPrice, category) {
+    return products.filter((p) => {
+      return (
+        (!minPrice || p.price >= parseFloat(minPrice)) &&
+        (!maxPrice || p.price < parseFloat(maxPrice)) &&
+        (!category || p.category.toLowerCase() == category.toLowerCase())
+      );
     });
-    }
+  }
 }
 
 // Sample test products
@@ -33,7 +32,9 @@ var products = [
     7499.0,
     "https://dummyimage.com/200x200/000/fff&text=Nike+Air+Max+270",
     "Footwear",
-    ["7", "8", "9", "10"]
+    ["7", "8", "9", "10"],
+    3,
+    "12"
   ),
   new ProductModel(
     2,
@@ -42,7 +43,9 @@ var products = [
     79999.0,
     "https://dummyimage.com/200x200/333/fff&text=iPhone+14",
     "Electronics",
-    []
+    [],
+    3,
+    "15"
   ),
   new ProductModel(
     3,
@@ -51,7 +54,9 @@ var products = [
     3499.0,
     "https://dummyimage.com/200x200/123456/ffffff&text=Levi's+Jacket",
     "Clothing",
-    ["S", "M", "L", "XL"]
+    ["S", "M", "L", "XL"],
+    3,
+    "15"
   ),
   new ProductModel(
     4,
@@ -60,7 +65,9 @@ var products = [
     29990.0,
     "https://dummyimage.com/200x200/000/aaa&text=Sony+XM5",
     "Audio",
-    []
+    [],
+    4,
+    "15"
   ),
   new ProductModel(
     5,
@@ -69,7 +76,9 @@ var products = [
     42999.0,
     "https://dummyimage.com/200x200/000000/00ffcc&text=Samsung+4K+TV",
     "Electronics",
-    []
+    [],
+    2,
+    "15"
   ),
   new ProductModel(
     6,
@@ -78,6 +87,8 @@ var products = [
     899.0,
     "https://dummyimage.com/200x200/ff0066/ffffff&text=Puma+Tee",
     "Clothing",
-    ["S", "M", "L"]
+    ["S", "M", "L"],
+    5,
+    "15"
   ),
 ];

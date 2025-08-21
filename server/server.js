@@ -2,6 +2,7 @@
 import express from "express";
 import { PORT } from "./src/config/env.js";
 import productRoutes from "./src/modules/products/product.routes.js";
+import userRoutes from "./src/modules/users/user.routes.js";
 import cors from "./src/config/cors.js";
 
 //create server
@@ -25,6 +26,16 @@ server.use(
     productRoutes
 );
 
+// all user req are redirected to user.routes.js
+server.use(
+    "/api/users",
+    userRoutes
+);
+
+// middleware to handle 404 req
+server.use((req,res)=>{
+    res.status(404).send("API not found");
+});
 
 server.listen(PORT,()=>{
     console.log(`server is listening at ${PORT}`)
