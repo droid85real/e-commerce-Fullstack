@@ -4,6 +4,7 @@ import { PORT } from "./src/config/env.js";
 import productRoutes from "./src/modules/products/product.routes.js";
 import userRoutes from "./src/modules/users/user.routes.js";
 import cors from "./src/config/cors.js";
+import jwtAuth from "./src/middleware/jwt.middleware.js";
 
 //create server
 const server=express();
@@ -23,6 +24,7 @@ server.use(express.urlencoded({extended:true}));
 // all products req are redirected to product.routes.js
 server.use(
     "/api/products",
+    jwtAuth,
     productRoutes
 );
 

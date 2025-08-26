@@ -1,5 +1,7 @@
 // user.controller.js
 import UserRepository from "./user.repository.js";
+import JWT from "jsonwebtoken";
+import { SECRET_KEY } from "../../config/env.js";
 
 export default class UserController {
   // sign Up middleware
@@ -29,7 +31,22 @@ export default class UserController {
       } else if (result.status === "INCORRECT_PASSWORD") {
         return res.status(401).json({ error: "Incorrect password" });
       } else if (result.status === "SUCCESS") {
-        return res.status(200).json(result.user);
+
+        // create token on signin , after user auth
+        const token=JWT.sign(
+          {user: result.user}, // payload
+          SECRET_KEY, // secret key
+          {
+            expiresIn: "1h" //when token expires
+          }
+        );
+
+        // send token
+        return res.status(200).json({
+          message: `Welcome, ${result.user.name}`,
+          token: token
+        });
+
       } else {
         return res.status(500).json({ error: "Something went wrong" });
       }
