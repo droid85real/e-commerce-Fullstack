@@ -10,11 +10,11 @@ import 'flowbite';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-    <ProductContextProvider>
-<App />
-    </ProductContextProvider>
-       
+        <ProductContextProvider>
+          <App />
+        </ProductContextProvider>
+
     </BrowserRouter>
- 
+
   </StrictMode>,
 )

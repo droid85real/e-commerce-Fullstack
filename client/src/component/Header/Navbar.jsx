@@ -75,7 +75,7 @@ const Navbar = () => {
             onClick={() => navigate("/login")}
             className="flex items-center hover:text-gray-300 cursor-pointer"
           >
-            Login <TbLogin className="ms-2" size={20} />
+            Logout <TbLogin className="ms-2" size={20} />
           </div>
         </div>
       </div>
