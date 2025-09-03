@@ -1,52 +1,140 @@
+// import React, { useContext, useEffect, useState } from "react";
+// import ProductCard from "../component/ProductCard";
+// import CategorySidebar from "../component/CategorySidebar";
+// import { ProductContext } from "../Context/ProductContext";
+// import { data } from "react-router-dom";
+
+
+// const ProductPage = () => {
+//   const { search } = useContext(ProductContext)
+//   const [data, setData] = useState([]);
+
+
+// const fetchData = async () => {
+//   const token = localStorage.getItem("token");
+//   let headers = {
+//     "Content-Type": "application/json",
+//   };
+
+//   if (token) {
+//     headers["Authorization"] =token
+//   }
+
+//   const response = await fetch("/api/products", { method: "GET", headers });
+
+//   if (!response.ok) {
+//     console.error("Failed to fetch products:", response.status);
+//     return [];
+//   }
+
+//   const json = await response.json();
+//   return json;
+// };
+
+//   useEffect(() => {
+//     (async () => {
+//       const newData = await fetchData();
+//       setData(newData);
+//     })();
+//   }, []);
+
+//   const filterData = data.filter((item) => {
+//     return item.name.toLowerCase().includes(search)
+//   })
+
+
+
+
+// const getUniqueData =(data,property)=>{
+//     let newVal =data.map((element)=>{
+//       return element[property]
+//     })
+//   return (newVal =[...new Set(newVal)]);
+//   }
+//   console.log(getUniqueData(data,"category"));
+// const categoryOnlyData=getUniqueData(data,"category");
+
+
+//   return (
+//     <div className="grid grid-cols-1 md:grid-cols-[25%_75%] gap-4">
+//       {/* Sidebar */}
+//       <div className="hidden md:block">
+//         <CategorySidebar />
+//       </div>
+
+//       {/* Product Section */}
+//       <div>
+//         <p className="text-black font-bold text-2xl p-5 text-center md:text-left">
+//           Our Collection
+//         </p>
+
+//         <div className="grid gap-4 p-3 
+//                         grid-cols-1 
+//                         sm:grid-cols-2 
+//                         md:grid-cols-3 
+//                         lg:grid-cols-4">
+//           {filterData.map((item) => (
+//             <ProductCard
+//               key={item.id}
+//               id={item.id}
+//               thumbnail={item.imageUrl}
+//               title={item.name}
+//               price={item.price}
+//               rating={item.rating}
+//               discountPercentage={item.discountPercentage}
+//             />
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ProductPage;
+
+
+
 import React, { useContext, useEffect, useState } from "react";
 import ProductCard from "../component/ProductCard";
 import CategorySidebar from "../component/CategorySidebar";
 import { ProductContext } from "../Context/ProductContext";
-import { data } from "react-router-dom";
 
 const ProductPage = () => {
-  const { search } = useContext(ProductContext)
-  const [data, setData] = useState([]);
+  const { search } = useContext(ProductContext);
 
-  // const fetchData = async () => {
-  //   const token = localStorage.getItem("token");
-  //   let headers = {
-  //     "Content-Type": "application/json",
-  //   };
-  //   if (token) {
-  //     headers["Authorization"] = `Bearer ${token}`;
-  //   }
-  //   let response = await fetch('/api/products', {
-  //     method: "GET",
-  //     headers
-  //   });
-  //   if (!response.ok) {
-  //     throw new Error("Failed to fetch products");
-  //   }
-  //   let json = await response.json();
-  //   return json;
-  // };
-const fetchData = async () => {
-  const token = localStorage.getItem("token");
-  let headers = {
-    "Content-Type": "application/json",
+  const [data, setData] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const fetchData = async (filters = {}) => {
+    const token = localStorage.getItem("token");
+    let headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = token;
+
+    // Build query string
+    let query = new URLSearchParams();
+    if (filters.minPrice) query.append("minPrice", filters.minPrice);
+    if (filters.maxPrice) query.append("maxPrice", filters.maxPrice);
+    if (filters.category && filters.category.length > 0) {
+      query.append("category", filters.category.join(",")); // backend should handle multiple
+    }
+
+    const url =
+      query.toString().length > 0
+        ? `/api/products/filter?${query.toString()}`
+        : `/api/products`;
+
+    const response = await fetch(url, { method: "GET", headers });
+    if (!response.ok) {
+      console.error("Failed to fetch products:", response.status);
+      return [];
+    }
+
+    return await response.json();
   };
 
-  if (token) {
-    headers["Authorization"] =token
-  }
-
-  const response = await fetch("/api/products", { method: "GET", headers });
-
-  if (!response.ok) {
-    console.error("Failed to fetch products:", response.status);
-    return [];
-  }
-
-  const json = await response.json();
-  return json;
-};
-
+  // Initial load (all products)
   useEffect(() => {
     (async () => {
       const newData = await fetchData();
@@ -54,25 +142,39 @@ const fetchData = async () => {
     })();
   }, []);
 
-  const filterData = data.filter((item) => {
-    return item.name.toLowerCase().includes(search)
-  })
+  // Apply Filters
+  const applyFilters = async (
+    categories = selectedCategories,
+    min = minPrice,
+    max = maxPrice
+  ) => {
+    const newData = await fetchData({
+      minPrice: min,
+      maxPrice: max,
+      category: categories,
+    });
+    setData(newData);
+  };
 
-  function loadMore() {
-    setTimeout(() => {
-      setData((prev) => [...prev, ...data])
-    }, 3000);
 
-  }
-  // loadMore();
-  console.log(data)
-
+  // Search filter (client-side)
+  const filterData = data.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[25%_75%] gap-4">
       {/* Sidebar */}
       <div className="hidden md:block">
-        <CategorySidebar />
+        <CategorySidebar
+          selectedCategories={selectedCategories}
+          setSelectedCategories={setSelectedCategories}
+          minPrice={minPrice}
+          setMinPrice={setMinPrice}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          applyFilters={applyFilters}
+        />
       </div>
 
       {/* Product Section */}
@@ -86,17 +188,23 @@ const fetchData = async () => {
                         sm:grid-cols-2 
                         md:grid-cols-3 
                         lg:grid-cols-4">
-          {filterData.map((item) => (
-            <ProductCard
-              key={item.id}
-              id={item.id}
-              thumbnail={item.imageUrl}
-              title={item.name}
-              price={item.price}
-              rating={item.rating}
-              discountPercentage={item.discountPercentage}
-            />
-          ))}
+          {filterData.length > 0 ? (
+            filterData.map((item) => (
+              <ProductCard
+                key={item.id}
+                id={item.id}
+                thumbnail={item.imageUrl}
+                title={item.name}
+                price={item.price}
+                rating={item.rating}
+                discountPercentage={item.discountPercentage}
+              />
+            ))
+          ) : (
+            <p className="text-center col-span-full text-gray-500">
+              No products found
+            </p>
+          )}
         </div>
       </div>
     </div>
