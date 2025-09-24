@@ -13,7 +13,8 @@ const jwtAuth=(req,res,next)=>{
     try {
         //  jwt.verify(token, secretOrPublicKey, [options, callback])
         const payload=JWT.verify(token,SECRET_KEY); //check token validity
-        req.user=payload; // used later
+        req.userId=payload.userId; // used later
+        req.userRole=payload.role; // used later
         // console.log(payload);
     } catch (error) {
         return res.status(401).json({ message: "Token validation failed"});        
