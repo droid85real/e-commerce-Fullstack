@@ -5,6 +5,7 @@ import productRoutes from "./src/modules/products/product.routes.js";
 import userRoutes from "./src/modules/users/user.routes.js";
 import cors from "./src/config/cors.js";
 import jwtAuth from "./src/middleware/jwt.middleware.js";
+import cartRoutes from "./src/modules/carts/cart.routes.js";
 
 //create server
 const server=express();
@@ -24,7 +25,7 @@ server.use(express.urlencoded({extended:true}));
 // all products req are redirected to product.routes.js
 server.use(
     "/api/products",
-    jwtAuth,
+    // jwtAuth,
     productRoutes
 );
 
@@ -32,6 +33,13 @@ server.use(
 server.use(
     "/api/users",
     userRoutes
+);
+
+// all cart req are redirected to cart.routes.js
+server.use(
+    "/api/cart",
+    jwtAuth,
+    cartRoutes
 );
 
 // middleware to handle 404 req

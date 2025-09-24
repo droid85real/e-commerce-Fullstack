@@ -34,7 +34,7 @@ export default class UserController {
 
         // create token on signin , after user auth
         const token=JWT.sign(
-          {user: result.user}, // payload
+          {userId: result.user.id, role: result.user.role}, // payload
           SECRET_KEY, // secret key
           {
             expiresIn: "1h" //when token expires
@@ -44,6 +44,7 @@ export default class UserController {
         // send token
         return res.status(200).json({
           message: `Welcome, ${result.user.name}`,
+          // user: result.user,
           token: token
         });
 

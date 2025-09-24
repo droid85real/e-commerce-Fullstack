@@ -50,7 +50,6 @@ export default class UserRepository {
       }
 
       const {password: _ ,...safeUser}=user; // removing password using rest operator
-
       return { status: "SUCCESS", user: safeUser };      
     } catch (error) {
       throw new Error("Error logging user: "+error.message);
@@ -60,5 +59,11 @@ export default class UserRepository {
 
 // sample user
 var users = [
-  new UserModel(1, "user1", "user1@gmail.com", "user1pass", "customer"),
+  new UserModel (
+    '1756862084954',
+    'user2',
+    'user2@gmail.com',
+    '$2b$12$C4JoHMgLfz8TqJiCMW5KU.F.K1v1usq1PdApO0pBtpQRW4TMowdpW', // user2Pass
+    'customer'
+  ),
 ];
