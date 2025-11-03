@@ -48,12 +48,8 @@ const ProductCard = ({ id, thumbnail, title, price, rating, discountPercentage }
         variant="contained"
         size="small"
         startIcon={<MdAddShoppingCart />}
-        onClick={(e) => {
-          e.stopPropagation(); // prevent parent click (to avoid navigation)
-          alert(`${title} added to cart`);
-        }}
       >
-        Add item
+        More details
       </Button>
     </div>
   );

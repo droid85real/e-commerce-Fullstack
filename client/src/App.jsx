@@ -1,11 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./App.css";
 import Routing from "./Pages/Routing";
-import Login from "./Pages/Login";
 import SellerDashboard from "./Dashboard/SellerDashboard";
 import { AuthContext, getLocalStorage, setLocalStorage } from "./Context/AuthContext";
-import Signup from "./Pages/Signup";
-
 export default function App() {
   useEffect(() => {
     const { adminsData, customersData } = getLocalStorage()// ✅ Correct usage
@@ -43,7 +40,6 @@ export default function App() {
       {user == 'customer' ? <Routing /> : ''}
       {user =='admin' ? <SellerDashboard/> : ''} */}
       <Routing/>
-      {/* <Signup/> */}
     </>
   );
 }

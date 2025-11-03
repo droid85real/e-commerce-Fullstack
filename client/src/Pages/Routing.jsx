@@ -1,28 +1,24 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-
 import Category from './Category'
 import Contact from './Contact'
-import Collection from './Collection'
-import Login from './Login'
 import Home from './Home'
 import ProductDetails from './ProductDetail'
-import App from '../App'
-import LoginForm from './LoginForm'
-import Signup from './Signup'
+import Cart from './Cart'
+import AuthPage from './AuthPage'
+import Checkout from './Checkout'
 
 const Routing = () => {
   return (
     <>
       <Routes>
-        <Route path='/' element={<Signup/>} />
+        <Route path='/' element={<AuthPage/>} />
         <Route path='/about' element={<Category />} />
         <Route path='/contact' element={<Contact />} />
-        <Route path='/collection' element={<Collection />} />
-        <Route path='/login' element={<LoginForm />} />
-        <Route path='/signup' element={<Signup />} />
+        <Route path='/cart' element={<Cart/>} />
         <Route path="/product/:id" element={<ProductDetails />}/>
         <Route path='/home' element={<Home/>} />
+        <Route path='/checkout' element={<Checkout/>}/>
       </Routes>
 
     </>
