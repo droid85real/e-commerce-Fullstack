@@ -1,12 +1,16 @@
 // product.routes.js
 import express from "express";
 import ProductController from "./product.controller.js";
+import ProductRepository from "./product.repository.js";
 
 // initialise express router
 const productRoutes=express.Router();
 
+// creating an instance of ProductRepository
+const productRepository=new ProductRepository();
+
 // creating an instance of ProductController
-const productController=new ProductController();
+const productController=new ProductController(productRepository); // injecting userRepository
 
 // on get req 
 productRoutes.get(
