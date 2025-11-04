@@ -1,13 +1,16 @@
 // user.controller.js
-import UserRepository from "./user.repository.js";
 import JWT from "jsonwebtoken";
 import { SECRET_KEY } from "../../config/env.js";
 
 export default class UserController {
+  constructor(userRepository){
+    this.userRepo=userRepository;
+  }
+
   // sign Up middleware
-  async postSignUp(req, res) {
+  postSignUp=async(req, res)=>{
     try {
-      const result = await UserRepository.signUp(req.body);
+      const result = await this.userRepo.signUp(req.body);
   
       if (result.status === "EMAIL_ALREADY_REGISTERED") {
         return res.status(409).json({ error: "Email already registered" });
@@ -22,9 +25,9 @@ export default class UserController {
   }
 
   // sign In middleware
-  async postSignIn(req, res) {
+  postSignIn=async(req, res)=> {
     try {
-      const result = await UserRepository.signIn(req.body);
+      const result = await this.userRepo.signIn(req.body);
   
       if (result.status === "USER_NOT_FOUND") {
         return res.status(404).json({ error: "User not found" });
@@ -43,8 +46,9 @@ export default class UserController {
 
         // send token
         return res.status(200).json({
-          message: `Welcome, ${result.user.name}`,
-          // user: result.user,
+          // message: `Welcome, ${result.user.name}`,
+          userId: result.user.id,
+          role: result.user.role,
           token: token
         });
 
@@ -52,6 +56,7 @@ export default class UserController {
         return res.status(500).json({ error: "Something went wrong" });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: error.message });
     }
   }

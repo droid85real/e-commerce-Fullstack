@@ -1,10 +1,15 @@
+// user.routes.js
 import express from "express";
 import UserController from "./user.controller.js";
+import UserRepository from "./user.repository.js";
 
 const userRoutes=express.Router(); // initializing express server
 
+// creating instance of UserRepository
+const userRepository=new UserRepository();
+
 // creating instance of UserController
-const userController=new UserController();
+const userController=new UserController(userRepository); // injecting UserRepository
 
 
 userRoutes.post(

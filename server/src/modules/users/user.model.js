@@ -1,7 +1,6 @@
 // user.model.js
 export default class UserModel{
-    constructor(id,name,email,password,role){
-        this.id=id;
+    constructor(name,email,password,role){
         this.name=name;
         this.email=email;
         this.password=password;

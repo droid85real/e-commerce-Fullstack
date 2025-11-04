@@ -5,10 +5,11 @@ import { DB_NAME } from "./env.js";
 
 // console.log("MONGO_URI: ", MONGO_URI);
 let db = null;
+let client = null;
 
 export const connectToMongoDB = async () => {
   try {
-    const client = await MongoClient.connect(MONGO_URI);
+    client = new MongoClient(MONGO_URI);
     await client.connect();
     console.log("Connected to MongoDB");
     db = client.db(DB_NAME);

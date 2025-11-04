@@ -15,7 +15,7 @@ const jwtAuth=(req,res,next)=>{
         const payload=JWT.verify(token,SECRET_KEY); //check token validity
         req.userId=payload.userId; // used later
         req.userRole=payload.role; // used later
-        // console.log(payload);
+        console.log(payload);
     } catch (error) {
         return res.status(401).json({ message: "Token validation failed"});        
     }
