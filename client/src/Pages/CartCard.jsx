@@ -1,6 +1,6 @@
-import React from "react";
+import {RiDeleteBinLine} from "react-icons/ri";
 
-const CartCard = ({ item, onIncrease, onDecrease }) => {
+const CartCard = ({ item, onIncrease, onDecrease ,deleteItem}) => {
   return (
     <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
       {/* Product Info */}
@@ -27,6 +27,10 @@ const CartCard = ({ item, onIncrease, onDecrease }) => {
         </button>
       </div>
 
+      <div className="flex items-center gap-3">
+        <button onClick={deleteItem} className="text-red-500 hover:text-red-700 transition"><RiDeleteBinLine size={20} /></button>
+      </div>
+
       {/* Subtotal */}
       <p className="text-lg font-semibold text-gray-800">
         ₹{(item.price * item.quantity).toLocaleString()}
@@ -36,4 +40,3 @@ const CartCard = ({ item, onIncrease, onDecrease }) => {
 };
 
 export default CartCard;
-
