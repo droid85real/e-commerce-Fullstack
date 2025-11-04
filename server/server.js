@@ -6,9 +6,10 @@ import userRoutes from "./src/modules/users/user.routes.js";
 import cors from "./src/config/cors.js";
 import jwtAuth from "./src/middleware/jwt.middleware.js";
 import cartRoutes from "./src/modules/carts/cart.routes.js";
+import { connectToMongoDB } from "./src/config/mongodb.js";
 
 //create server
-const server=express();
+const server = express();
 
 // server.use("/",(req,res)=>{
 //     res.status(200).send("Backend is working");
@@ -20,33 +21,36 @@ server.use(cors);
 server.use(express.json());
 
 // parse form data
-server.use(express.urlencoded({extended:true}));
+server.use(express.urlencoded({ extended: true }));
 
-// all products req are redirected to product.routes.js
-server.use(
-    "/api/products",
-    // jwtAuth,
-    productRoutes
-);
+// start server only after DB connection
+const startServer = async () => {
+  try {
+    await connectToMongoDB(); // connect to mongoDB
 
-// all user req are redirected to user.routes.js
-server.use(
-    "/api/users",
-    userRoutes
-);
+    // all products req are redirected to product.routes.js
+    server.use(
+      "/api/products",
+      productRoutes
+    );
 
-// all cart req are redirected to cart.routes.js
-server.use(
-    "/api/cart",
-    jwtAuth,
-    cartRoutes
-);
+    // all user req are redirected to user.routes.js
+    server.use("/api/users", userRoutes);
 
-// middleware to handle 404 req
-server.use((req,res)=>{
-    res.status(404).send("API not found");
-});
+    // all cart req are redirected to cart.routes.js
+    server.use("/api/cart", jwtAuth, cartRoutes);
 
-server.listen(PORT,()=>{
-    console.log(`server is listening at ${PORT}`)
-});
+    // middleware to handle 404 req
+    server.use((req, res) => {
+      res.status(404).send("API not found");
+    });
+
+    server.listen(PORT, () => {
+      console.log(`server is listening at ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error);
+    process.exit(1);
+  }
+};
+startServer();
