@@ -1,5 +1,4 @@
 import logo from "../../assets/Logo.webp";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import Search from "./Search";
 import { BsCart3 } from "react-icons/bs";
@@ -10,12 +9,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className="fixed w-full z-20 flex flex-col">
       {/* Top Strip */}
       <Header />
 
       {/* Navbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between w-full p-2 bg-slate-800 text-white font-[verdana] fixed top-[42px] z-10 gap-3">
+      <div className="flex flex-col md:flex-row items-center justify-between p-2 bg-slate-800 text-white font-[verdana] w-full z-10 gap-3">
         <div className="flex items-center gap-4 w-full md:w-1/2">
           <p className="font-bold text-lg cursor-pointer"><img src={logo} alt="" srcset="" width={50}/></p>
           <div className="flex-1">

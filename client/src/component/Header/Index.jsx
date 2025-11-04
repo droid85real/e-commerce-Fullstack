@@ -9,7 +9,7 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="fixed w-full z-10">
+    <header className="w-full z-10">
       <div className="top-strip py-2 border-t-[1px] border-b-[1px] border-s-cyan-50 bg-slate-800 text-white">
         <div className="container mx-auto flex justify-between items-center px-4">
 
