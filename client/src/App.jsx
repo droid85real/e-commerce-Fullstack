@@ -2,11 +2,16 @@
 import Navbar from "./component/Header/Navbar";
 import { Outlet } from "react-router-dom";
 import Footer from "./component/Footer.jsx";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
+
+      {/* Global toaster */}
+      <Toaster richColors />
+
       <div className="pt-[117px]">
         {/* 70px = navbar height */}
         <Outlet />

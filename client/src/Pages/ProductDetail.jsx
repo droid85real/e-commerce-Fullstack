@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProductContext } from "../Context/ProductContext";
+import { toast } from "sonner";
 
 const token = localStorage.getItem("token");
 
@@ -38,12 +39,13 @@ const ProductDetails = () => {
 
       const data = await res.json();
       if (res.ok) {
-        alert(`${product.name} added to cart!`);
+        toast.success(`${product.name} added to cart!`);
       } else {
-        alert(data.message || "Failed to add to cart");
+        toast.error(data.message || "Failed to add to cart");
       }
     } catch (err) {
-      alert("Network error. Please try again.");
+      console.error(err);
+      toast.error("Network error. Please try again later.");
     }
   };
 
