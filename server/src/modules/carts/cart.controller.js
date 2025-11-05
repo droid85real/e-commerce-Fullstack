@@ -1,124 +1,180 @@
 // cart.controller.js
-import CartRepository from "./cart.repository.js";
-
 export default class CartController {
-  // get cart middleware
-  getCart(req, res) {
-    const userId = req.userId;
-    const result = CartRepository.getCartByUserId(userId);
-
-    switch (result.status) {
-      case "SUCCESS":
-        return res.status(200).json(result.cart);
-
-      case "NOT_FOUND":
-        return res.status(404).json({ message: "Cart is not found" });
-    }
+  constructor(cartRepository) {
+    this.cartRepo = cartRepository;
   }
+
+  // get cart middleware
+  getCart = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const result = await this.cartRepo.getCartByUserId(userId);
+
+      switch (result.status) {
+        case "SUCCESS":
+          return res.status(200).json(result.cart);
+        case "NOT_FOUND":
+          return res.status(404).json({ message: "Cart is not found" });
+        default:
+          return res.status(500).json({ message: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.log("Error in getCart", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 
   //add item middleware
-  postCartItem(req, res) {
-    const userId = req.userId;
-    const { productId, productName, price, quantity } = req.body;
+  postCartItem = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const { productId, productName, price, quantity } = req.body;
 
-    // Basic validation
-    if (!productId || !productName) {
-      return res
-        .status(400)
-        .json({ message: "Product ID and name are required" });
+      // Basic validation
+      if (!productId || !productName) {
+        return res
+          .status(400)
+          .json({ message: "Product ID and Product Name are required" });
+      }
+
+      if (typeof price !== "number" || price <= 0) {
+        return res
+          .status(400)
+          .json({ message: "Price must be a positive number" });
+      }
+
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        return res.status(400).json({ message: "Quantity must be at least 1" });
+      }
+
+      const result = await this.cartRepo.addItemToCart(
+        userId,
+        productId,
+        productName,
+        price,
+        quantity
+      );
+
+      switch (result.status) {
+        case "SUCCESS":
+          return res.status(200).json(result.cart);
+        case "INVALID_PRODUCT_ID":
+          return res.status(400).json({ message: "Invalid product ID format" });
+        case "INVALID_USER_ID":
+          return res.status(400).json({ message: "Invalid user ID format" });
+        case "PRODUCT_NOT_FOUND":
+          return res.status(404).json({ message: "Product not found" });
+        case "PRICE_MISMATCH":
+          return res
+            .status(400)
+            .json({ message: "Price mismatch between product and cart" });
+        default:
+          return res.status(500).json({ message: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.log("Error in postCartItem", error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-
-    if (typeof price !== "number" || price <= 0) {
-      return res
-        .status(400)
-        .json({ message: "Price must be a positive number" });
-    }
-
-    if (!Number.isInteger(quantity) || quantity < 1) {
-      return res.status(400).json({ message: "Quantity must be at least 1" });
-    }
-
-    const result = CartRepository.addItemToCart(
-      userId,
-      productId,
-      productName,
-      price,
-      quantity
-    );
-
-    switch (result.status) {
-      case "SUCCESS":
-        return res.status(201).json(result.cart);
-      default:
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
+  };
 
   // update item middleware
-  putCartItem(req, res) {
-    const userId = req.userId;
-    const { productId, quantity } = req.body;
+  putCartItem = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const { productId, quantity } = req.body;
 
-    // Basic validation
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID required" });
-    }
-    if (!Number.isInteger(quantity) || quantity < 1) {
-      return res.status(400).json({ message: "Quantity must be at least 1" });
-    }
+      // Basic validation
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID required" });
+      }
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        return res.status(400).json({ message: "Quantity must be at least 1" });
+      }
 
-    const result = CartRepository.updateCartItem(userId, productId, quantity);
+      const result = await this.cartRepo.updateCartItem(
+        userId,
+        productId,
+        quantity
+      );
 
-    switch (result.status) {
-      case "SUCCESS":
-        return res.status(200).json(result.cart);
-      case "CART_NOT_FOUND":
-        return res.status(404).json({ message: "Cart not found" });
-      case "ITEM_NOT_FOUND":
-        return res.status(404).json({ message: "Item not found" });
-      default:
-        return res.status(500).json({ message: "Internal Server Error" });
+      switch (result.status) {
+        case "SUCCESS":
+          return res.status(200).json(result.cart);
+        case "CART_NOT_FOUND":
+          return res.status(404).json({ message: "Cart not found" });
+        case "ITEM_NOT_FOUND":
+          return res.status(404).json({ message: "Item not found" });
+        case "INVALID_PRODUCT_ID":
+          return res.status(400).json({ message: "Invalid product ID format" });
+        case "INVALID_USER_ID":
+          return res.status(400).json({ message: "Invalid user ID format" });
+        case "UPDATE_FAILED":
+          return res.status(500).json({ message: "Update failed" });
+        default:
+          return res.status(500).json({ message: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.log("Error in putCartItem", error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 
   // delete cart item middleware
-  deleteCartItem(req, res) {
-    const userId = req.userId;
-    const productId = req.params.id;
+  deleteCartItem = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const productId = req.params.id;
 
-    // Basic validation
-    if (!productId) {
-      return res
-        .status(400)
-        .json({ message: "Product ID  required" });
+      // Basic validation
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID  required" });
+      }
+
+      const result = await this.cartRepo.removeCartItem(userId, productId);
+
+      switch (result.status) {
+        case "SUCCESS":
+          return res.status(200).json(result.cart);
+        case "INVALID_PRODUCT_ID":
+          return res.status(400).json({ message: "Invalid product ID format" });
+        case "INVALID_USER_ID":
+          return res.status(400).json({ message: "Invalid user ID format" });
+        case "CART_NOT_FOUND":
+          return res.status(404).json({ message: "Cart not found" });
+        case "ITEM_NOT_FOUND":
+          return res.status(404).json({ message: "Item not found" });
+        case "CART_EMPTY_DELETED":
+          return res
+            .status(204)
+            .json({ message: "Cart is empty,cart deleted" });
+        default:
+          return res.status(500).json({ message: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-
-    const result = CartRepository.removeCartItem(userId, productId);
-
-    switch (result.status) {
-      case "SUCCESS":
-        return res.status(200).json(result.cart);
-      case "CART_NOT_FOUND":
-        return res.status(404).json({ message: "Cart not found" });
-      case "ITEM_NOT_FOUND":
-        return res.status(404).json({ message: "Item not found" });
-      default:
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
+  };
 
   // clear cart middleware
-  deleteAllCartItem(req, res) {
-    const userId = req.userId;
-    const result = CartRepository.clearCart(userId);
+  deleteAllCartItem = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const result = await this.cartRepo.clearCart(userId);
 
-    switch (result.status) {
-      case "SUCCESS":
-        return res.status(200).json(result.cart);
-      case "CART_NOT_FOUND":
-        return res.status(404).json({ message: "Cart not found" });
-      default:
-        return res.status(500).json({ message: "Internal Server Error" });
+      switch (result.status) {
+        case "SUCCESS":
+          return res.status(200).json({ message: "Cart cleared" });
+        case "CART_NOT_FOUND":
+          return res.status(404).json({ message: "Cart not found" });
+        case "DELETE_FAILED":
+          return res.status(500).json({ message: "Failed to clear cart" });
+        default:
+          return res.status(500).json({ message: "Internal Server Error" });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-  }
+  };
 }
