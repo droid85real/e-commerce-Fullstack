@@ -6,6 +6,28 @@ import { toast } from "sonner";
 const token = localStorage.getItem("token");
 
 const ProductDetails = () => {
+
+
+  const [suggestedData, setSuggestedData] = useState([]);
+
+  useEffect(() => {
+    const fetchTrendingData = async () => {
+      try {
+        const response = await fetch("https://fakestoreapi.com/products");
+        const result = await response.json();
+        setSuggestedData(result);
+
+      } catch (error) {
+        console.error("Error fetching trending data:", error);
+      }
+    };
+
+    fetchTrendingData();
+    console.log(suggestedData);
+  }, []);
+
+
+
   const { id } = useParams();
   const { fetchProductById, products } = useContext(ProductContext);
   const [product, setProduct] = useState(null);
@@ -79,7 +101,7 @@ const ProductDetails = () => {
               </span>
             </div>
             <p className="text-2xl font-semibold text-green-700 mt-4">
-             ₹ {product.price}
+              ₹ {product.price}
             </p>
 
             <p className="text-gray-600 mt-4 leading-relaxed">
@@ -112,29 +134,48 @@ const ProductDetails = () => {
           You may also like
         </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {(products && products.length > 0 ? products.slice(0, 4) : []).map(
-            (item) => (
+        <div className="max-w-6xl mx-auto mt-16">
+          <h2 className="text-xl font-semibold text-gray-800 mb-6">
+            You may also like
+          </h2>
+
+          <div className="flex overflow-x-auto gap-6 pb-4 px-2 scroll-smooth snap-x snap-mandatory">
+            {(suggestedData && suggestedData.length > 0
+              ? suggestedData.slice(0, 10)
+              : []
+            ).map((item) => (
               <div
                 key={item.id}
-                onClick={() => navigate(`/product/${item.id}`)}
-                className="cursor-pointer bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition"
+                className="group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2 snap-start min-w-[220px]"
               >
-                <img
-                  src={item.imageUrl}
-                  alt={item.name}
-                  className="w-full h-52 object-cover"
-                />
-                <div className="p-3 text-center">
-                  <p className="text-sm font-medium text-gray-700 truncate">
-                    {item.name}
-                  </p>
-                  <p className="text-gray-600 text-sm">${item.price}</p>
+                {/* Product Image */}
+                <div className="overflow-hidden">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
+                  />
                 </div>
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+                {/* Product Info */}
+                <div className="p-4 text-center">
+                  <p className="text-sm font-semibold text-gray-800 group-hover:text-yellow-600 transition-colors duration-300 truncate">
+                    {item.title}
+                  </p>
+                  <p className="text-gray-600 text-sm mt-1">₹{item.price}</p>
+                </div>
+
+                {/* Fancy Hover Border */}
+                <span className="absolute inset-0 border-2 border-transparent group-hover:border-yellow-500 rounded-xl transition-all duration-500"></span>
               </div>
-            )
-          )}
+            ))}
+          </div>
         </div>
+
+
       </div>
     </div>
   );

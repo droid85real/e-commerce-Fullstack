@@ -37,7 +37,7 @@ const toggleCategory = (category) => {
 
 
   return (
-    <div className="hidden md:block md:w-64 w-full bg-white rounded-2xl shadow p-4 md:sticky md:top-[120px] mb-3 " >
+    <div className="hidden md:block md:w-64 w-full bg-white rounded-2xl shadow p-6 md:sticky md:top-[80px] mb-3 " >
       <h2 className="text-lg font-bold mb-4">CATEGORY</h2>
       <ul className="space-y-2">
         {categories.map((cat, index) => (

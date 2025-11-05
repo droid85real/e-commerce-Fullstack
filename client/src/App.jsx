@@ -12,7 +12,7 @@ const App = () => {
       {/* Global toaster */}
       <Toaster richColors />
 
-      <div className="pt-[117px]">
+      <div className="pt-[45px]">
         {/* 70px = navbar height */}
         <Outlet />
       </div>

@@ -16,7 +16,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />, // Layout with Navbar + <Outlet>
     children: [
-      { index: true, element: <AuthPage /> },
+      { index: true, element: <Home /> },
       { path: "about", element: <Category /> },
       { path: "contact", element: <Contact /> },
       { path: "cart", element: <Cart /> },
@@ -24,6 +24,8 @@ const router = createBrowserRouter([
       { path: "home", element: <Home /> },
       { path: "checkout", element: <Checkout /> },
       { path: "trending", element: <Trending/> },
+      { path: "login", element: <AuthPage/> },
+      { path: "home", element: <Home/> },
     ],
   },
   {

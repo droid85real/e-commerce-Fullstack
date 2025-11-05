@@ -16,7 +16,7 @@ const Search = () => {
   }, [query, changeHandler]);
 
   return (
-    <div className="flex items-center w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-[50px] bg-gradient-to-r from-slate-100 to-slate-200 rounded-2xl border border-gray-300 px-3 mx-auto shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-blue-400 focus-within:border-blue-500">
+    <div className="flex items-center w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-[40px] bg-gradient-to-r from-slate-100 to-slate-200 rounded-2xl border border-gray-300 px-3 mx-auto shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-blue-400 focus-within:border-blue-500">
       <input
         type="text"
         placeholder="Search products..."
