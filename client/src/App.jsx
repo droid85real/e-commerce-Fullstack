@@ -6,16 +6,17 @@ import { Toaster } from "sonner";
 
 const App = () => {
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col min-h-screen">
     <Navbar />
 
       {/* Global toaster */}
       <Toaster richColors />
 
-      <div className="pt-[45px]">
+      <main className="flex-grow pt-[45px]">
         {/* 70px = navbar height */}
         <Outlet />
-      </div>
+      </main>
+      
       <Footer />
     </div>
   );
