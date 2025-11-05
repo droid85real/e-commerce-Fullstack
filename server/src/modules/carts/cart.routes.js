@@ -1,12 +1,16 @@
 // cart.routes.js
 import express from "express";
 import CartController from "./cart.controller.js";
+import CartRepository from "./cart.repository.js";
 
 // initialise express router
 const cartRoutes=express.Router();
 
+// create instance of cart repository
+const cartRepository=new CartRepository();
+
 // create instance of cart controller
-const cartController=new CartController();
+const cartController=new CartController(cartRepository); // injecting cart repository
 
 
 // to get cart 
