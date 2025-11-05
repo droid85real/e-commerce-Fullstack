@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Search from "./Search";
 import { BsCart3 } from "react-icons/bs";
 import { TbLogin } from "react-icons/tb";
@@ -7,6 +7,7 @@ import Header from "./Index";
 const Navbar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const location = useLocation(); // ✅ Get current route
 
   return (
     <div className="fixed w-full z-20 flex flex-col shadow-lg text-yellow-400 ">
@@ -24,8 +25,8 @@ const Navbar = () => {
         </h1>
 
 
-          <div className="flex-1">
-            <Search />
+          <div className="flex-1 ml-4 sm:ml-6 lg:ml-8">
+            {(location.pathname === "/" || location.pathname === "/home") && <Search />}
           </div>
         </div>
 
