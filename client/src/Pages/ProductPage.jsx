@@ -96,7 +96,7 @@ const ProductPage = () => {
             filterData.map((item) => (
               <ProductCard
                 key={item.id}
-                id={item.id}
+                _id={item._id}
                 thumbnail={item.imageUrl}
                 title={item.name}
                 price={item.price}

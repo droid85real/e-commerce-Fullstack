@@ -1,20 +1,20 @@
 // Cart.jsx
-import { useState, useEffect } from "react";
-import CartCard from "../Pages/CartCard";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import CartCard from "../Pages/CartCard";
 
 const Cart = () => {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(false);
 
-  const checkout = () => {
-    navigate("/checkout");
-  };
-  const fetchCart = async () => {
+  // ✅ Fetch cart items safely
+  const fetchCart = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
+        setIsEmpty(true);
         setLoading(false);
         return;
       }
@@ -25,82 +25,159 @@ const Cart = () => {
           Authorization: token,
         },
       });
+
+      // ✅ Handle response status codes
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
+      }
+
+      if (res.status === 404) {
+        setIsEmpty(true);
+        setCartData([]);
+        setLoading(false);
+        return;
+      }
+
       const data = await res.json();
-      setCartData(data.items || data);
+
+      if (Array.isArray(data)) {
+        setCartData(data);
+      } else if (Array.isArray(data.items)) {
+        setCartData(data.items);
+      } else {
+        setCartData([]);
+      }
+
+      setIsEmpty(false);
     } catch (error) {
       console.error("Error fetching cart:", error);
+      setIsEmpty(true);
+      setCartData([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
+  // ✅ Update quantity (optimistic)
   const updateQuantity = async (productId, quantity) => {
-    if (quantity <= 0) {
-      await deleteItem(productId);
-      return;
+    if (quantity <= 0) return deleteItem(productId);
+
+    setCartData((prev) =>
+      prev.map((item) =>
+        item.productId === productId ? { ...item, quantity } : item
+      )
+    );
+
+    try {
+      await fetch("http://localhost:3000/api/cart", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ productId, quantity }),
+      });
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      fetchCart();
     }
-
-    await fetch("http://localhost:3000/api/cart", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
-      },
-      body: JSON.stringify({ productId, quantity }),
-    });
-
-    fetchCart(); // refresh UI
   };
 
+  // ✅ Delete single item
   const deleteItem = async (productId) => {
-    await fetch(`http://localhost:3000/api/cart/${productId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-    fetchCart();
+    try {
+      const res = await fetch(`http://localhost:3000/api/cart/${productId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+
+      if (res.status === 404) {
+        setIsEmpty(true);
+        setCartData([]);
+        return;
+      }
+
+      setCartData((prev) => prev.filter((item) => item.productId !== productId));
+    } catch (err) {
+      console.error("Error deleting item:", err);
+    }
   };
 
+  // ✅ Clear cart
   const clearCart = async () => {
-    await fetch("http://localhost:3000/api/cart/clear", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: localStorage.getItem("token"),
-      },
-    });
-    fetchCart();
+    try {
+      const res = await fetch("http://localhost:3000/api/cart/clear", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("token"),
+        },
+      });
+
+      if (res.status === 404) {
+        setIsEmpty(true);
+        setCartData([]);
+        return;
+      }
+
+      setCartData([]);
+      setIsEmpty(true);
+    } catch (err) {
+      console.error("Error clearing cart:", err);
+    }
   };
 
-  const totalProducts = cartData.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  // ✅ Memoized totals
+  const totalProducts = useMemo(() => {
+    if (!Array.isArray(cartData)) return 0;
+    return cartData.reduce(
+      (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
+      0
+    );
+  }, [cartData]);
 
   const shipping = totalProducts > 0 ? 30 : 0;
   const total = totalProducts + shipping;
 
+  const checkout = () => navigate("/checkout");
+
+  // ✅ Loading state
   if (loading)
     return <p className="text-center mt-20 text-lg">Loading cart...</p>;
 
-  if (cartData.length === 0)
-    return <p className="text-center mt-20 text-lg">Your cart is empty.</p>;
+  // ✅ Empty state (based on 404)
+  if (isEmpty)
+    return (
+      <div className="text-center mt-20">
+        <p className="text-lg mb-4">Your cart is empty 🛒</p>
+        <button
+          onClick={() => navigate("/")}
+          className="px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    );
 
+  // ✅ Main UI
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-12">
-      <h1 className="text-3xl font-bold text-center mb-8">Cart</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">Your Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        {/* Left - Item List */}
+        {/* Left: Item List */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow border border-gray-200 p-6">
           <div className="mb-4 border-b pb-3">
-            <h2 className="text-xl font-semibold">Item List</h2>
+            <h2 className="text-xl font-semibold">Items in Cart</h2>
           </div>
 
           <div className="space-y-4">
@@ -127,7 +204,7 @@ const Cart = () => {
           </button>
         </div>
 
-        {/* Right - Order Summary */}
+        {/* Right: Order Summary */}
         <div className="bg-white rounded-xl shadow border border-gray-200 p-6 h-fit">
           <h2 className="text-xl font-semibold mb-4 border-b pb-3">
             Order Summary
@@ -135,7 +212,7 @@ const Cart = () => {
 
           <div className="space-y-3 text-gray-700">
             <div className="flex justify-between">
-              <p>Products ({cartData.length})</p>
+              <p>Products</p>
               <p>₹{totalProducts.toFixed(2)}</p>
             </div>
             <div className="flex justify-between">
@@ -144,7 +221,7 @@ const Cart = () => {
             </div>
             <hr />
             <div className="flex justify-between text-lg font-bold">
-              <p>Total amount</p>
+              <p>Total</p>
               <p>₹{total.toFixed(2)}</p>
             </div>
           </div>
@@ -153,7 +230,7 @@ const Cart = () => {
             onClick={checkout}
             className="mt-6 w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
           >
-            Go to checkout
+            Proceed to Checkout
           </button>
         </div>
       </div>

@@ -5,13 +5,13 @@ import { MdAddShoppingCart } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../Context/ProductContext";
 
-const ProductCard = ({ id, thumbnail, title, price, rating, discountPercentage }) => {
+const ProductCard = ({ _id, thumbnail, title, price, rating, discountPercentage }) => {
   const { fetchProductById} = useContext(ProductContext);
   const navigate = useNavigate();
 
   const handleClick = async () => {
-    const product = await fetchProductById(id);
-    navigate(`/product/${id}`, { state: { product } });
+    const product = await fetchProductById(_id);
+    navigate(`/product/${_id}`, { state: { product } });
   };
   const filledStars = Math.round(rating || 3); // default 3 if not provided
   const totalStars = 5;

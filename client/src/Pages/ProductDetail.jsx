@@ -30,7 +30,7 @@ const ProductDetails = () => {
           Authorization: token,
         },
         body: JSON.stringify({
-          productId: product.id,
+          productId: product._id,
           productName: product.name,
           price: product.price,
           quantity: 1,
@@ -83,7 +83,7 @@ const ProductDetails = () => {
             </p>
 
             <p className="text-gray-600 mt-4 leading-relaxed">
-              {product.description ||
+              {product.desc ||
                 "Slim-fitting style, contrast raglan long sleeve, three-button henley placket, lightweight and soft fabric for breathable and comfortable wearing."}
             </p>
           </div>

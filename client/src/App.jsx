@@ -7,7 +7,7 @@ import { Toaster } from "sonner";
 const App = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
+    <Navbar />
 
       {/* Global toaster */}
       <Toaster richColors />

@@ -1,12 +1,13 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 
-const About = () => {
+const Category = () => {
   return (
     <div>
-      about
+      category
+
+      hiiii
     </div>
   )
 }
 
-export default About
+export default Category

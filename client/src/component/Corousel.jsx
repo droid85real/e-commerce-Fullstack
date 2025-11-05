@@ -131,7 +131,7 @@ const Corousel = () => {
           src={img}
           alt={`Slide ${index + 1}`}
           loading="lazy"
-          className={`absolute w-full h-full object-cover transition-opacity duration-700 ${
+          className={`absolute w-full h-full object-fit transition-opacity duration-700 ${
             index === current ? "opacity-100" : "opacity-0"
           }`}
         />

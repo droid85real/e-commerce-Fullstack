@@ -9,6 +9,7 @@ import Cart from "./Pages/Cart.jsx";
 import ProductDetails from "./Pages/ProductDetail.jsx";
 import Home from "./Pages/Home.jsx";
 import Checkout from "./Pages/Checkout.jsx";
+import Trending from "./Pages/Trending.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ const router = createBrowserRouter([
       { path: "product/:id", element: <ProductDetails /> },
       { path: "home", element: <Home /> },
       { path: "checkout", element: <Checkout /> },
+      { path: "trending", element: <Trending/> },
     ],
   },
   {
