@@ -5,7 +5,7 @@ const CartCard = ({ item, onIncrease, onDecrease ,deleteItem}) => {
     <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
       {/* Product Info */}
       <div>
-        <h2 className="text-lg font-semibold">{item.productName}</h2>
+        <h2 className="text-lg font-semibold">{item.name}</h2>
         <p className="text-sm text-gray-500">ID: {item.productId}</p>
         <p className="text-base font-medium text-gray-700">₹{item.price}</p>
       </div>
