@@ -1,38 +1,45 @@
-import {RiDeleteBinLine} from "react-icons/ri";
+import { RiDeleteBinLine } from "react-icons/ri";
 
-const CartCard = ({ item, onIncrease, onDecrease ,deleteItem}) => {
+const CartCard = ({ item, onIncrease, onDecrease, deleteItem }) => {
   return (
-    <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition space-y-3 md:space-y-0">
       {/* Product Info */}
-      <div>
+      <div className="w-full md:w-auto">
         <h2 className="text-lg font-semibold">{item.name}</h2>
         <p className="text-sm text-gray-500">ID: {item.productId}</p>
         <p className="text-base font-medium text-gray-700">₹{item.price}</p>
       </div>
 
-      {/* Quantity Controls */}
-      <div className="flex items-center space-x-3">
+      {/* Quantity + Delete Section (Mobile First) */}
+      <div className="flex w-full md:w-auto items-center justify-between md:justify-center gap-4">
+        {/* Quantity Controls */}
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={onDecrease}
+            className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition active:scale-95"
+          >
+            -
+          </button>
+          <span className="text-lg font-medium">{item.quantity}</span>
+          <button
+            onClick={onIncrease}
+            className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition active:scale-95"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Delete Button (moves beside quantity on mobile) */}
         <button
-          onClick={onDecrease}
-          className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+          onClick={deleteItem}
+          className="text-red-500 hover:text-red-700 transition md:ml-4"
         >
-          -
-        </button>
-        <span className="text-lg font-medium">{item.quantity}</span>
-        <button
-          onClick={onIncrease}
-          className="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
-        >
-          +
+          <RiDeleteBinLine size={22} />
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button onClick={deleteItem} className="text-red-500 hover:text-red-700 transition"><RiDeleteBinLine size={20} /></button>
-      </div>
-
-      {/* Subtotal */}
-      <p className="text-lg font-semibold text-gray-800">
+      {/* Subtotal (hidden on small screens) */}
+      <p className="hidden md:block text-lg font-semibold text-gray-800">
         ₹{(item.price * item.quantity).toLocaleString()}
       </p>
     </div>

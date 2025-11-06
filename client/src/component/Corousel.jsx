@@ -123,7 +123,7 @@ const Corousel = () => {
   }, [images.length]);
 
   return (
-    <div className="relative w-full h-56 md:h-96 overflow-hidden rounded-lg">
+    <div className="relative w-full h-56 md:h-96 overflow-hidden rounded-lg ">
       {/* Slides */}
       {images.map((img, index) => (
         <img
@@ -131,8 +131,9 @@ const Corousel = () => {
           src={img}
           alt={`Slide ${index + 1}`}
           loading="lazy"
-          className={`absolute w-full h-full object-fit transition-opacity duration-700 ${
+          className={`absolute w-full h-70 md:h-96 pt-5 object-fit transition-opacity duration-700 ${
             index === current ? "opacity-100" : "opacity-0"
+            
           }`}
         />
       ))}

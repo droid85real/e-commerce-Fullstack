@@ -1,74 +1,152 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Search from "./Search";
+import { Menu, X, User } from "lucide-react";
 import { BsCart3 } from "react-icons/bs";
 import { TbLogin } from "react-icons/tb";
+import Search from "./Search";
 import Header from "./Index";
 import { useAuth } from "@/Context/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, logout } = useAuth();
-  const location = useLocation(); // ✅ Get current route
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="fixed w-full z-20 flex flex-col shadow-lg text-yellow-400 ">
-      {/* Top Strip */}
-      {/* <Header /> */}
-
-      {/* Navbar */}
-      <div className="flex flex-col md:flex-row items-center justify-between px-2 py-2 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white font-[verdana] w-full gap-4 transition-all duration-300">
-        
-        {/* Logo & Search */}
-        <div className="flex items-center gap-4 w-full md:w-1/2">
-        <h1 className="text-3xl font-extrabold">
-          <span className="text-white">Apni</span>
-          <span className="text-blue-400">Shop</span>
-        </h1>
-
-
-          <div className="flex-1 ml-4 sm:ml-6 lg:ml-8">
-            {(location.pathname === "/" || location.pathname === "/home") && <Search />}
-          </div>
+    <header className="fixed w-full z-20 bg-white shadow-md border-b border-gray-200">
+      <div className="flex items-center justify-between px-6 py-4 font-[Poppins] text-gray-800 transition-all duration-300">
+        {/* Logo */}
+        <div
+          className="text-3xl font-extrabold tracking-tight cursor-pointer hover:scale-105 transition-transform duration-300"
+          onClick={() => navigate("/home")}
+        >
+          <span className="text-gray-900">Apni</span>
+          <span className="text-blue-600">Shop</span>
         </div>
 
-        {/* Navigation Links */}
-        <div className="flex flex-wrap md:flex-nowrap justify-center md:justify-end gap-8 w-full md:w-1/2 text-sm sm:text-base">
-          <div
-            onClick={() => navigate("/home")}
-            className="relative cursor-pointer group"
-          >
-            <span className="group-hover:text-blue-400 transition-colors duration-300">Home</span>
-            <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-          </div>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex space-x-8 font-medium">
+          {["home", "trending", "collections"].map((page) => (
+            <button
+              key={page}
+              onClick={() => navigate(`/${page}`)}
+              className="relative group transition-colors duration-300 capitalize"
+            >
+              <span className="group-hover:text-blue-600">{page}</span>
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </button>
+          ))}
+        </nav>
 
-          <div
-            onClick={() => navigate("/trending")}
-            className="relative cursor-pointer group"
-          >
-            <span className="group-hover:text-blue-400 transition-colors duration-300">Trending </span>
-            <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-          </div>
+        {/* Right Section */}
+        <div className="flex items-center gap-4">
+          {/* Show Search only on home */}
+          {(location.pathname === "/" || location.pathname === "/home") && (
+            <div className="hidden sm:block">
+              <Search />
+            </div>
+          )}
 
-          <div
+          {/* Profile */}
+          <button
+            onClick={() => navigate("/profile")}
+            className="p-2 rounded-full hover:bg-gray-100 transition-all hidden sm:block"
+          >
+            <User size={22} className="text-gray-600 hover:text-blue-600" />
+          </button>
+
+          {/* Cart */}
+          <button
             onClick={() => navigate("/cart")}
-            className="flex items-center relative cursor-pointer group"
+            className="hidden sm:flex items-center relative cursor-pointer group"
           >
             <span className="group-hover:text-blue-400 transition-colors duration-300 flex items-center">
               Cart <BsCart3 className="ml-2" size={18} />
             </span>
             <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-          </div>
+          </button>
 
-          <div className="flex items-center relative cursor-pointer group">
+          {/* Login / Logout */}
+          <button
+            onClick={() => (isAuthenticated ? logout() : navigate("/login"))}
+            className="hidden sm:flex items-center relative cursor-pointer group"
+          >
             <span className="group-hover:text-blue-400 transition-colors duration-300 flex items-center">
-                  {isAuthenticated ? <p onClick={logout}>Logout</p> : <p onClick={()=>navigate("/login")}>Login</p>}
-           <TbLogin className="ml-2" size={18} />
+              {isAuthenticated ? "Logout" : "Login"}
+              <TbLogin className="ml-2" size={18} />
             </span>
             <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-          </div>
+          </button>
+
+          {/* Hamburger Icon (Mobile) */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
-    </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-white shadow-md border-t border-gray-200 px-6 py-4 space-y-4 font-[Poppins]">
+          {/* Search on Mobile */}
+          {(location.pathname === "/" || location.pathname === "/home") && <Search />}
+
+          {/* Nav Links */}
+          {["home", "trending", "collections"].map((page) => (
+            <button
+              key={page}
+              onClick={() => {
+                navigate(`/${page}`);
+                setMenuOpen(false);
+              }}
+              className="block w-full text-left text-gray-700 hover:text-blue-600 transition"
+            >
+              {page.charAt(0).toUpperCase() + page.slice(1)}
+            </button>
+          ))}
+
+          <div className="flex flex-col gap-2 border-t border-gray-200 pt-3">
+            {/* Profile */}
+            <button
+              onClick={() => {
+                navigate("/profile");
+                setMenuOpen(false);
+              }}
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition"
+            >
+              <User size={20} /> Profile
+            </button>
+
+            {/* Cart */}
+            <button
+              onClick={() => {
+                navigate("/cart");
+                setMenuOpen(false);
+              }}
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition"
+            >
+              <BsCart3 size={20} /> Cart
+            </button>
+
+            {/* Login / Logout */}
+            <button
+              onClick={() => {
+                if (isAuthenticated) logout();
+                else navigate("/login");
+                setMenuOpen(false);
+              }}
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition"
+            >
+              <TbLogin size={20} /> {isAuthenticated ? "Logout" : "Login"}
+            </button>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 

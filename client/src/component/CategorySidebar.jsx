@@ -81,7 +81,7 @@ export default function CategorySidebar({
             </div>
             <input
               id={`cat-${index}`}
-              type="radio"
+              type="checkbox"
               name="category"
               checked={selectedCategories[0] === cat.name}
               onChange={() => toggleCategory(cat.name)}
