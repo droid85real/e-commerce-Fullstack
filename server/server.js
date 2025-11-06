@@ -23,6 +23,15 @@ server.use(express.json());
 // parse form data
 server.use(express.urlencoded({ extended: true }));
 
+// Add a debug route
+server.get('/debug', (req, res) => {
+  res.json({
+    CLIENT_URL: process.env.CLIENT_URL,
+    NODE_ENV: process.env.NODE_ENV,
+    message: 'Backend is running'
+  });
+});
+
 // start server only after DB connection
 const startServer = async () => {
   try {
