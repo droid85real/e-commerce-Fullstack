@@ -2,23 +2,19 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import CartCard from "../Pages/CartCard";
+import { useAuth } from "@/Context/AuthContext";
 
 const Cart = () => {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
+  
+  const { token, isAuthenticated, logout } = useAuth();
 
-  // ✅ Fetch cart items safely
+  // Fetch cart items safely
   const fetchCart = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setIsEmpty(true);
-        setLoading(false);
-        return;
-      }
-
       const res = await fetch("http://localhost:3000/api/cart", {
         headers: {
           "Content-Type": "application/json",
@@ -26,9 +22,9 @@ const Cart = () => {
         },
       });
 
-      // ✅ Handle response status codes
+      // Handle response status codes
       if (res.status === 401) {
-        localStorage.removeItem("token");
+        logout();
         navigate("/login");
         return;
       }
@@ -58,11 +54,17 @@ const Cart = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [token,logout,navigate]);
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setIsEmpty(true);
+      setLoading(false);
+      return;
+    }
     fetchCart();
-  }, [fetchCart]);
+  }, [fetchCart, isAuthenticated]);
+
 
   // ✅ Update quantity (optimistic)
   const updateQuantity = async (productId, quantity) => {
@@ -79,7 +81,7 @@ const Cart = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: localStorage.getItem("token"),
+          Authorization: token,
         },
         body: JSON.stringify({ productId, quantity }),
       });
@@ -96,7 +98,7 @@ const Cart = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: localStorage.getItem("token"),
+          Authorization: token,
         },
       });
 
@@ -119,7 +121,7 @@ const Cart = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: localStorage.getItem("token"),
+          Authorization: token,
         },
       });
 

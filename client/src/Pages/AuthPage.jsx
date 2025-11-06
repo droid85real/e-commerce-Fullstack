@@ -1,21 +1,40 @@
-import React, { useState } from "react";
+// AuthPage.jsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/Context/AuthContext";
 
 export default function AuthPage() {
+  const { login , isAuthenticated } = useAuth();
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "customer",
+  });
+
   const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("customer");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const navigate = useNavigate();
 
+ 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home");
+    }
+  }, [isAuthenticated, navigate]);
+
+  // handle change
+  const handleChange=(e)=>{    
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
   // Handle Login
   const handleLogin = async (e) => {
     e.preventDefault();
+    const { email, password } = form;
     try {
       const res = await fetch("http://localhost:3000/api/users/signin", {
         method: "POST",
@@ -26,9 +45,15 @@ export default function AuthPage() {
       const data = await res.json();
 
       if (res.status === 200) {
-        localStorage.setItem("token", data.token);
-        navigate("/home");
+        login(data.token);
         setError("");
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          role: "customer",
+        })
       } else if (res.status === 401) {
         setError("Incorrect password. Try again.");
       } else if (res.status === 404) {
@@ -44,6 +69,7 @@ export default function AuthPage() {
   // Handle Signup
   const handleSignup = async (e) => {
     e.preventDefault();
+    const { name, email, password,confirmPassword, role }=form;
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
@@ -60,6 +86,13 @@ export default function AuthPage() {
       if (res.status === 201) {
         setSuccess("Account created successfully!");
         setError("");
+        setForm({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          role: "customer",
+        })
         setTimeout(() => setIsLogin(true), 1000);
       } else if (data.status === "EMAIL_ALREADY_REGISTERED") {
         setError("Email is already registered.");
@@ -97,8 +130,9 @@ export default function AuthPage() {
       {!isLogin && (
         <input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          name="name"
+          value={form.name}
+          onChange={handleChange}
           required
           placeholder="Full Name"
           className="h-12 border border-gray-300 rounded-xl px-5 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition duration-300"
@@ -106,16 +140,18 @@ export default function AuthPage() {
       )}
       <input
         type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        name="email"
+        value={form.email}
+        onChange={handleChange}
         required
         placeholder="Email"
         className="h-12 border border-gray-300 rounded-xl px-5 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition duration-300"
       />
       <input
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        name="password"
+        value={form.password}
+        onChange={handleChange}
         required
         placeholder="Password"
         className="h-12 border border-gray-300 rounded-xl px-5 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition duration-300"
@@ -124,15 +160,17 @@ export default function AuthPage() {
         <>
           <input
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            name="confirmPassword"
+            value={form.confirmPassword}
+            onChange={handleChange}
             required
             placeholder="Confirm Password"
             className="h-12 border border-gray-300 rounded-xl px-5 placeholder:text-gray-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition duration-300"
           />
           <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+            value={form.role}
+            name="role"
+            onChange={handleChange}
             className="h-12 border border-gray-300 rounded-xl px-5 bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition duration-300"
           >
             <option value="customer">Customer</option>

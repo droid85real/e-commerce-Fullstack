@@ -1,12 +1,12 @@
+// ProductDetail.jsx
 import { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import { ProductContext } from "../Context/ProductContext";
 import { toast } from "sonner";
-
-const token = localStorage.getItem("token");
+import { useAuth } from "@/Context/AuthContext";
 
 const ProductDetails = () => {
-
+  const { token } = useAuth();
 
   const [suggestedData, setSuggestedData] = useState([]);
 
@@ -23,7 +23,6 @@ const ProductDetails = () => {
     };
 
     fetchTrendingData();
-    console.log(suggestedData);
   }, []);
 
 
@@ -63,6 +62,7 @@ const ProductDetails = () => {
       if (res.ok) {
         toast.success(`${product.name} added to cart!`);
       } else {
+        if(res.status===401) navigate("/login");
         toast.error(data.message || "Failed to add to cart");
       }
     } catch (err) {

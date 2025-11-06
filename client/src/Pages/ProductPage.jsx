@@ -1,10 +1,13 @@
+// ProductPage.jsx
 import React, { useContext, useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import CategorySidebar from "../component/CategorySidebar";
 import { ProductContext } from "../Context/ProductContext";
+import { useAuth } from "@/Context/AuthContext";
 
 const ProductPage = () => {
   const { search } = useContext(ProductContext);
+  const { token } = useAuth();
 
   const [data, setData] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -12,7 +15,6 @@ const ProductPage = () => {
   const [maxPrice, setMaxPrice] = useState("");
 
   const fetchData = async (filters = {}) => {
-    const token = localStorage.getItem("token");
     let headers = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = token;
 
@@ -95,7 +97,7 @@ const ProductPage = () => {
           {filterData.length > 0 ? (
             filterData.map((item) => (
               <ProductCard
-                key={item.id}
+                key={item._id}
                 _id={item._id}
                 thumbnail={item.imageUrl}
                 title={item.name}

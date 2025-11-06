@@ -3,10 +3,11 @@ import Search from "./Search";
 import { BsCart3 } from "react-icons/bs";
 import { TbLogin } from "react-icons/tb";
 import Header from "./Index";
+import { useAuth } from "@/Context/AuthContext";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+  const { isAuthenticated, logout } = useAuth();
   const location = useLocation(); // ✅ Get current route
 
   return (
@@ -58,12 +59,9 @@ const Navbar = () => {
             <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </div>
 
-          <div
-            onClick={() => navigate("/login")}
-            className="flex items-center relative cursor-pointer group"
-          >
+          <div className="flex items-center relative cursor-pointer group">
             <span className="group-hover:text-blue-400 transition-colors duration-300 flex items-center">
-                  {token ? <p onClick={()=>localStorage.setItem("token","")}>Logout</p> : <p>Login</p>}
+                  {isAuthenticated ? <p onClick={logout}>Logout</p> : <p onClick={()=>navigate("/login")}>Login</p>}
            <TbLogin className="ml-2" size={18} />
             </span>
             <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-400 group-hover:w-full transition-all duration-300"></span>
