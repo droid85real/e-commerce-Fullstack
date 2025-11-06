@@ -28,19 +28,13 @@ export default class CartController {
   postCartItem = async (req, res) => {
     try {
       const userId = req.userId;
-      const { productId, productName, price, quantity } = req.body;
+      const { productId, quantity, size } = req.body;
 
       // Basic validation
-      if (!productId || !productName) {
+      if (!productId) {
         return res
           .status(400)
-          .json({ message: "Product ID and Product Name are required" });
-      }
-
-      if (typeof price !== "number" || price <= 0) {
-        return res
-          .status(400)
-          .json({ message: "Price must be a positive number" });
+          .json({ message: "Product ID is required" });
       }
 
       if (!Number.isInteger(quantity) || quantity < 1) {
@@ -50,9 +44,8 @@ export default class CartController {
       const result = await this.cartRepo.addItemToCart(
         userId,
         productId,
-        productName,
-        price,
-        quantity
+        quantity,
+        size,
       );
 
       switch (result.status) {
@@ -64,10 +57,6 @@ export default class CartController {
           return res.status(400).json({ message: "Invalid user ID format" });
         case "PRODUCT_NOT_FOUND":
           return res.status(404).json({ message: "Product not found" });
-        case "PRICE_MISMATCH":
-          return res
-            .status(400)
-            .json({ message: "Price mismatch between product and cart" });
         default:
           return res.status(500).json({ message: "Internal Server Error" });
       }

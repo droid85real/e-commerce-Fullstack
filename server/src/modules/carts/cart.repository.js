@@ -41,7 +41,7 @@ export default class CartRepository {
   }
 
   // method to add item to cart
-  async addItemToCart(userId, productId, productName, price, quantity) {
+  async addItemToCart(userId, productId, quantity, size, ) {
     try {
       const collection = await this.getCollection();
       const productCollection = await this.getProductCollection();
@@ -59,18 +59,19 @@ export default class CartRepository {
 
       if (!product) return { status: "PRODUCT_NOT_FOUND" };
 
-      if (product.price !== price) return { status: "PRICE_MISMATCH" };
-
       const result = await this.getCartByUserId(userId);
 
       // create cart, if not found
       if (result.status === "NOT_FOUND") {
         const item = {
           productId: productObj,
-          name: productName,
+          name: product.name,
           quantity: Number(quantity),
-          price: Number(price),
-          total: Number((quantity * price).toFixed(2)),
+          price: Number(product.price),
+          imageUrl: product.imageUrl,
+          category: product.category,
+            size: String(size) || null,
+          total: Number((quantity * product.price).toFixed(2)),
         };
 
         const newCart = new CartModel(userObj, [item]);
@@ -101,10 +102,12 @@ export default class CartRepository {
           // if not present then add item
           const item = {
             productId: productObj,
-            name: productName,
+            name: product.name,
             quantity: Number(quantity),
-            price: Number(price),
-            total: Number((quantity * price).toFixed(2)),
+            price: Number(product.price),
+            total: Number((quantity * product.price).toFixed(2)),
+            size: String(size) || null,
+            imageUrl: product.imageUrl,
           };
           cart.items.push(item);
         }
