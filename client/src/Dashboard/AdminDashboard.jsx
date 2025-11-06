@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 
-const SellerDashboard = () => {
+const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [product, setProduct] = useState([]);
@@ -110,7 +110,7 @@ const SellerDashboard = () => {
     <div className="flex flex-col md:flex-row h-screen bg-gray-100 font-[Inter]">
       {/* Sidebar Toggle (Mobile) */}
       <div className="md:hidden flex items-center justify-between bg-white px-4 py-3 shadow">
-        <h1 className="text-xl font-bold text-blue-700">Seller Panel</h1>
+        <h1 className="text-xl font-bold text-blue-700">Admin Panel</h1>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="text-gray-700"
@@ -127,7 +127,7 @@ const SellerDashboard = () => {
       >
         <div>
           <div className="hidden md:block p-6 text-2xl font-extrabold bg-gradient-to-r from-blue-700 to-blue-400 text-white text-center rounded-br-3xl">
-            Seller Panel
+            Admin Panel
           </div>
           <nav className="mt-6">
             {menuItems.map((item) => (
@@ -331,4 +331,4 @@ const SellerDashboard = () => {
   );
 };
 
-export default SellerDashboard;
+export default AdminDashboard;

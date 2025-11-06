@@ -2,7 +2,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import AuthPage from "./Pages/AuthPage.jsx";
-import SellerDashboard from "./Dashboard/SellerDashboard.jsx";
 import Category from "./Pages/Category.jsx";
 import Contact from "./Pages/Contact.jsx";
 import Cart from "./Pages/Cart.jsx";
@@ -10,6 +9,7 @@ import ProductDetails from "./Pages/ProductDetail.jsx";
 import Home from "./Pages/Home.jsx";
 import Checkout from "./Pages/Checkout.jsx";
 import Trending from "./Pages/Trending.jsx";
+import AdminDashboard from "./Dashboard/AdminDashboard.jsx";
 
 const router = createBrowserRouter([
   {
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/admin",
-    element: <SellerDashboard />, 
+    element: <AdminDashboard/>, 
   },
 ]);
 
