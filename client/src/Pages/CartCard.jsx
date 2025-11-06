@@ -4,10 +4,13 @@ const CartCard = ({ item, onIncrease, onDecrease, deleteItem }) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-50 rounded-xl shadow-sm hover:shadow-md transition space-y-3 md:space-y-0">
       {/* Product Info */}
-      <div className="w-full md:w-auto">
-        <h2 className="text-lg font-semibold">{item.name}</h2>
-        <p className="text-sm text-gray-500">ID: {item.productId}</p>
+      <div className="w-full md:w-auto flex gap-2">
+        <img src={item.imageUrl} alt={item.name} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover mt-2" />
+        <div className="ml-2">
+            <h2 className="text-lg font-semibold">{item.name}</h2>
         <p className="text-base font-medium text-gray-700">₹{item.price}</p>
+        </div>
+      
       </div>
 
       {/* Quantity + Delete Section (Mobile First) */}

@@ -67,7 +67,7 @@ const ProductDetails = () => {
 
   if (!product) return <div className="text-center py-20">Loading...</div>;
 
-  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
 
   return (
     <div className="min-h-screen bg-white py-10 px-6 font-[Poppins]">
@@ -99,12 +99,12 @@ const ProductDetails = () => {
             {product.desc ||
               "High-quality fabric with modern design and perfect fit for everyday wear."}
           </p>
-{/* 
+
           Size Selection
           <div className="mt-4">
             <h4 className="font-semibold text-gray-800 mb-2">Select Size</h4>
             <div className="flex flex-wrap gap-3">
-              {sizes.map((size) => (
+              {product.sizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
@@ -118,7 +118,7 @@ const ProductDetails = () => {
                 </button>
               ))}
             </div>
-          </div> */}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 pt-6">

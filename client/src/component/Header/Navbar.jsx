@@ -27,7 +27,7 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8 font-medium">
-          {["home", "trending", "collections"].map((page) => (
+          {["home", "trending", "Customer Support"].map((page) => (
             <button
               key={page}
               onClick={() => navigate(`/${page}`)}
@@ -50,7 +50,7 @@ const Navbar = () => {
 
           {/* Profile */}
           <button
-            onClick={() => navigate("/profile")}
+            // onClick={() => navigate("/profile")}
             className="p-2 rounded-full hover:bg-gray-100 transition-all hidden sm:block"
           >
             <User size={22} className="text-gray-600 hover:text-blue-600" />
@@ -96,7 +96,7 @@ const Navbar = () => {
           {(location.pathname === "/" || location.pathname === "/home") && <Search />}
 
           {/* Nav Links */}
-          {["home", "trending", "collections"].map((page) => (
+          {["home", "trending"].map((page) => (
             <button
               key={page}
               onClick={() => {
