@@ -184,6 +184,27 @@ export default class ProductRepository {
       throw new Error("Error adding product: " + error.message);
     }
   }
+
+  // method to get trending products
+  async getTrending(limit) {
+    try {
+      const collection = await this.getCollection();
+
+      // Sort by rating (desc), then discount (desc) if equal ratings
+      const products = await collection
+        .find({})
+        .sort({ rating: -1, discountPercentage: -1 })
+        .limit(limit)
+        .toArray();
+
+      return products.length > 0
+        ? { status: "SUCCESS", products }
+        : { status: "NOT_FOUND" };
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error getting trending products: " + error.message);
+    }
+  }
 }
 
 // Sample test products

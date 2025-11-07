@@ -28,6 +28,9 @@ productRoutes.get(
 // add product
 productRoutes.post("/",jwtAuth,productController.addProduct);
 
+// trending products
+productRoutes.get("/trending", productController.getTrendingProducts);
+
 // http://localhost:3000/api/products/1
 productRoutes.get(
     "/:id", //req already completed /api/products
