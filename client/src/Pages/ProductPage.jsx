@@ -4,6 +4,7 @@ import ProductCard from "./ProductCard";
 import CategorySidebar from "../component/CategorySidebar";
 import { ProductContext } from "../Context/ProductContext";
 import { useAuth } from "@/Context/AuthContext";
+import { API_BASE } from "@/api";
 
 const ProductPage = () => {
   const { search } = useContext(ProductContext);
@@ -26,14 +27,19 @@ const ProductPage = () => {
       query.append("category", filters.category.join(",")); // backend should handle multiple
     }
 
-    const url =
-      query.toString().length > 0
-        ? `/api/products/filter?${query.toString()}`
-        : `/api/products`;
+    const baseUrl = query.toString().length > 0
+      ? `${API_BASE}/api/products/filter`
+      : `${API_BASE}/api/products`;
+
+    const url = query.toString().length > 0 
+      ? `${baseUrl}?${query.toString()}`
+      : baseUrl;
+
+    console.log('Fetching from:', url); // Debug log
 
     const response = await fetch(url, { method: "GET", headers });
     if (!response.ok) {
-      console.error("Failed to fetch products:", response.status);
+      console.error("Failed to fetch products:", response.status, response.statusText);
       return [];
     }
 
