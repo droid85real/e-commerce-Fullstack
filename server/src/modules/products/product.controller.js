@@ -133,4 +133,24 @@ addProduct = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
   };
+
+  //middleware to get trending products
+  getTrendingProducts = async (req,res)=>{
+    try {
+      const limit=parseInt(req.query.limit) || 10; //default 10
+      const result=await this.productRepo.getTrending(limit);
+      
+      switch(result.status){
+        case "SUCCESS":
+            return res.status(200).json(result.products);
+        case "NOT_FOUND":
+            return res.status(404).json({ message: "No trending products found" });
+        default:
+            return res.status(500).json({ message: "Unexpected repository result" });
+      }
+    } catch (error) {
+      console.error("Controller getTrendingProducts error:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
 }
