@@ -2,6 +2,7 @@
 import express from "express";
 import ProductController from "./product.controller.js";
 import ProductRepository from "./product.repository.js";
+import jwtAuth from "../../middleware/jwt.middleware.js";
 
 // initialise express router
 const productRoutes=express.Router();
@@ -24,10 +25,20 @@ productRoutes.get(
     productController.getFilteredProducts
 );
 
+// add product
+productRoutes.post("/",jwtAuth,productController.addProduct);
+
 // http://localhost:3000/api/products/1
 productRoutes.get(
     "/:id", //req already completed /api/products
     productController.getOneProduct
+);
+
+// DELETE one product
+productRoutes.delete(
+  "/:id", // Already under /api/products
+  jwtAuth,
+  productController.deleteProduct
 );
 
 export default productRoutes;
