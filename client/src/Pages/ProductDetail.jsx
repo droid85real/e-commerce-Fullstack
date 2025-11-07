@@ -26,7 +26,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchTrendingData = async () => {
       try {
-        const response = await fetch("https://fakestoreapi.com/products");
+        const response = await fetch(`${API_BASE}/api/products/trending?limit=10`);
         const result = await response.json();
         setSuggestedData(result);
       } catch (error) {
@@ -99,8 +99,6 @@ const toggleWishlist = () => {
 
   if (!product) return <div className="text-center py-20">Loading...</div>;
 
-
-
   return (
     <div className="min-h-screen bg-white py-10 px-6 font-[Poppins]">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -132,24 +130,27 @@ const toggleWishlist = () => {
               "High-quality fabric with modern design and perfect fit for everyday wear."}
           </p>
 
-          Size Selection
-          <div className="mt-4">
-            <h4 className="font-semibold text-gray-800 mb-2">Select Size</h4>
-            <div className="flex flex-wrap gap-3">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${selectedSize === size
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-gray-300 hover:border-blue-500 hover:text-blue-600"
+          {/* Size Selection */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-semibold text-gray-800 mb-2">Select Size</h4>
+              <div className="flex flex-wrap gap-3">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                      selectedSize === size
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "border-gray-300 hover:border-blue-500 hover:text-blue-600"
                     }`}
-                >
-                  {size}
-                </button>
-              ))}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-4 pt-6">
@@ -180,26 +181,27 @@ const toggleWishlist = () => {
         </div>
       </div>
 
-      {/* Related Products */}
+      {/* Trending Products */}
       <div className="max-w-6xl mx-auto mt-16">
         <h2 className="text-3xl font-bold text-gray-800 mb-6">
           You may also like
         </h2>
 
         <div className="flex overflow-x-auto gap-6 pb-4 scroll-smooth snap-x snap-mandatory">
-          {suggestedData.slice(0, 10).map((item) => (
+          {suggestedData.map((item) => (
             <div
               key={item.id}
+              onClick={()=>navigate(`/product/${item._id}`)}
               className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden shadow hover:shadow-lg transition-all duration-300 cursor-pointer snap-start min-w-[220px]"
             >
               <img
-                src={item.image}
-                alt={item.title}
+                src={item.imageUrl}
+                alt={item.name}
                 className="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-110"
               />
               <div className="p-4 text-center">
                 <p className="text-sm font-medium text-gray-800 truncate">
-                  {item.title}
+                  {item.name}
                 </p>
                 <p className="text-gray-600 text-sm mt-1">₹{item.price}</p>
               </div>
@@ -207,6 +209,7 @@ const toggleWishlist = () => {
           ))}
         </div>
       </div>
+
     </div>
   );
 };
