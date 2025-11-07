@@ -13,11 +13,14 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/Context/AuthContext";
+import { API_BASE } from "@/api";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("theme") === "dark");
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
   const [product, setProduct] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -29,7 +32,7 @@ const AdminDashboard = () => {
     rating: "",
     discountPercentage: "",
   });
-    const { isAuthenticated, logout } = useAuth();
+  const { token, isAuthenticated, logout } = useAuth();
 
   const categories = [
     "Electronics",
@@ -39,7 +42,18 @@ const AdminDashboard = () => {
     "Home & Kitchen",
     "Beauty & Personal Care",
     "Sports & Fitness",
-    "Toys & Games"];
+    "Toys & Games",
+    "Jewelry",
+    "Health & Wellness",
+    "Books & Stationery",
+    "Groceries",
+    "Furniture",
+    "Garden & Outdoor",
+    "Perfume",
+    "Cosmetics",
+    "Glasses",
+    "Bags",
+  ];
 
   // 🌙 Apply theme mode
   useEffect(() => {
@@ -53,44 +67,59 @@ const AdminDashboard = () => {
   }, [darkMode]);
 
   // ✅ Fetch products
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch("/api/products");
-        const newResult = await response.json();
-        setProduct(newResult);
+        const response = await fetch(`${API_BASE}/api/products`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Double-check that result is an array
+        if (Array.isArray(result)) {
+          setProduct(result);
+        } else {
+          console.warn("Expected array but got:", typeof result, result);
+          setProduct([]); // Set to empty array as fallback
+        }
       } catch (err) {
         console.error("Error fetching products:", err);
+        setProduct([]); // Set to empty array on error
       }
     };
     fetchProduct();
-  }, [product]);
+  }, []);
 
-
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   // ✅ Delete Product
   async function handleDelete(id) {
-    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/api/products/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: token },
+      });
+
       const data = await res.json();
 
       if (res.ok) {
         toast.success(data.message || "Product deleted successfully");
-        setProducts((prev) => prev.filter((p) => p._id !== id));
+        setProduct((prev) => prev.filter((p) => p._id !== id));
       } else {
         toast.error(data.message || "Failed to delete product");
       }
     } catch (error) {
+      console.error("Error deleting product:", error);
       toast.error("Server error while deleting");
     }
   }
-
-
-  const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -98,30 +127,51 @@ const AdminDashboard = () => {
     const payload = {
       ...formData,
       sizes: formData.sizes.split(",").map((s) => s.trim()),
+      price: parseFloat(formData.price), // Explicit conversion
+      rating: parseFloat(formData.rating || 0),
+      discountPercentage: parseFloat(formData.discountPercentage || 0),
     };
 
-    const res = await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      toast.success(data.message);
-      setProducts((prev) => [...prev, data.product]);
-      setFormData({
-        name: "",
-        desc: "",
-        price: "",
-        imageUrl: "",
-        category: "",
-        sizes: "",
-        rating: "",
-        discountPercentage: "",
+    try {
+      const res = await fetch(`${API_BASE}/api/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(payload),
       });
-    } else {
-      toast.error(data.message);
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Product added successfully");
+
+        // Safely update the products state
+        setProduct((prev) => {
+          // Ensure prev is always treated as an array
+          const previousProducts = Array.isArray(prev) ? prev : [];
+          return [...previousProducts, data.product];
+        });
+
+        // reset form
+        setFormData({
+          name: "",
+          desc: "",
+          price: "",
+          imageUrl: "",
+          category: "",
+          sizes: "",
+          rating: "",
+          discountPercentage: "",
+        });
+      } else {
+        toast.error(data.message || "Failed to add product");
+        console.error("Failed to add product:", data.message);
+      }
+    } catch (error) {
+      console.error("Network Error:", error);
+      toast.error("Network error while adding product");
     }
   };
 
@@ -138,15 +188,19 @@ const AdminDashboard = () => {
       {/* Sidebar Toggle (Mobile) */}
       <div className="md:hidden flex items-center justify-between bg-white dark:bg-gray-800 px-4 py-3 shadow">
         <h1 className="text-xl font-bold text-blue-600">Admin Panel</h1>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-gray-700 dark:text-gray-200">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="text-gray-700 dark:text-gray-200"
+        >
           {sidebarOpen ? <X size={26} /> : <Menu size={26} />}
         </button>
       </div>
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static z-30 top-0 left-0 h-full md:h-auto w-64 bg-white dark:bg-gray-800 shadow-xl flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+        className={`fixed md:static z-30 top-0 left-0 h-full md:h-auto w-64 bg-white dark:bg-gray-800 shadow-xl flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
       >
         <div>
           <div className="hidden md:block p-6 text-2xl font-extrabold bg-gradient-to-r from-blue-700 to-blue-500 text-white text-center rounded-br-3xl">
@@ -160,10 +214,11 @@ const AdminDashboard = () => {
                   setActiveTab(item.name);
                   setSidebarOpen(false);
                 }}
-                className={`flex items-center gap-3 px-6 py-3 cursor-pointer rounded-md mx-3 mb-1 transition-all ${activeTab === item.name
-                  ? "bg-blue-600 text-white shadow-lg scale-[1.02]"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:scale-[1.02]"
-                  }`}
+                className={`flex items-center gap-3 px-6 py-3 cursor-pointer rounded-md mx-3 mb-1 transition-all ${
+                  activeTab === item.name
+                    ? "bg-blue-600 text-white shadow-lg scale-[1.02]"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:scale-[1.02]"
+                }`}
               >
                 {item.icon}
                 <span className="text-sm font-medium">{item.name}</span>
@@ -175,17 +230,19 @@ const AdminDashboard = () => {
         <div className="p-5 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-red-500 cursor-pointer transition-all">
           <LogOut size={20} />
           <button
-                onClick={() => {
-                if (isAuthenticated) logout();
-                else navigate("/login");
-              }}
-          className="text-sm font-semibold">Logout</button>
+            onClick={() => {
+              if (isAuthenticated) logout();
+              else navigate("/login");
+            }}
+            className="text-sm font-semibold"
+          >
+            Logout
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto transition-all duration-500">
-
         {/* ✅ Dashboard */}
         {activeTab === "Dashboard" && (
           <>
@@ -200,8 +257,12 @@ const AdminDashboard = () => {
                   key={stat.title}
                   className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-transform duration-300"
                 >
-                  <h2 className="text-gray-500 dark:text-gray-400 text-sm">{stat.title}</h2>
-                  <p className="text-xl md:text-2xl font-bold mt-1">{stat.value}</p>
+                  <h2 className="text-gray-500 dark:text-gray-400 text-sm">
+                    {stat.title}
+                  </h2>
+                  <p className="text-xl md:text-2xl font-bold mt-1">
+                    {stat.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -220,21 +281,40 @@ const AdminDashboard = () => {
                 </thead>
                 <tbody>
                   {[
-                    { id: "ORD123", customer: "John Doe", amount: "$220", status: "Delivered" },
-                    { id: "ORD124", customer: "Alice", amount: "$150", status: "Pending" },
-                    { id: "ORD125", customer: "Michael", amount: "$300", status: "Shipped" },
+                    {
+                      id: "ORD123",
+                      customer: "John Doe",
+                      amount: "$220",
+                      status: "Delivered",
+                    },
+                    {
+                      id: "ORD124",
+                      customer: "Alice",
+                      amount: "$150",
+                      status: "Pending",
+                    },
+                    {
+                      id: "ORD125",
+                      customer: "Michael",
+                      amount: "$300",
+                      status: "Shipped",
+                    },
                   ].map((order) => (
-                    <tr key={order.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <tr
+                      key={order.id}
+                      className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
                       <td className="p-3">{order.id}</td>
                       <td className="p-3">{order.customer}</td>
                       <td className="p-3">{order.amount}</td>
                       <td
-                        className={`p-3 font-medium ${order.status === "Delivered"
-                          ? "text-green-600"
-                          : order.status === "Pending"
+                        className={`p-3 font-medium ${
+                          order.status === "Delivered"
+                            ? "text-green-600"
+                            : order.status === "Pending"
                             ? "text-yellow-500"
                             : "text-blue-500"
-                          }`}
+                        }`}
                       >
                         {order.status}
                       </td>
@@ -262,9 +342,16 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 {product.map((item) => (
-                  <tr key={item._id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                  <tr
+                    key={item._id}
+                    className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                  >
                     <td className="p-3">
-                      <img src={item.imageUrl} alt={item.name} className="w-10 h-10 md:w-12 md:h-12 rounded object-cover" />
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-10 h-10 md:w-12 md:h-12 rounded object-cover"
+                      />
                     </td>
                     <td className="p-3 text-sm">{item._id}</td>
                     <td className="p-3">{item.name}</td>
@@ -283,21 +370,39 @@ const AdminDashboard = () => {
               </tbody>
             </table>
 
-            {product.length === 0 && <p className="text-gray-500 dark:text-gray-400 text-center mt-6">No products found.</p>}
+            {product.length === 0 && (
+              <p className="text-gray-500 dark:text-gray-400 text-center mt-6">
+                No products found.
+              </p>
+            )}
           </div>
         )}
 
         {/* ✅ Add Product */}
         {activeTab === "Add Product" && (
           <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-md max-w-lg mx-auto hover:shadow-lg transition-all duration-500">
-            <h2 className="text-xl md:text-2xl font-semibold mb-6 text-center">Add New Product</h2>
-            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-xl">
-              <input type="text" placeholder="Product Name" value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+            <h2 className="text-xl md:text-2xl font-semibold mb-6 text-center">
+              Add New Product
+            </h2>
+            <form
+              onSubmit={handleAdd}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-xl"
+            >
+              <input
+                type="text"
+                placeholder="Product Name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
 
               <select
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
                 required
                 className="border p-2 rounded-lg"
               >
@@ -309,29 +414,72 @@ const AdminDashboard = () => {
                 ))}
               </select>
 
-              <input type="number" placeholder="Price" value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
+              <input
+                type="number"
+                placeholder="Price"
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({ ...formData, price: e.target.value })
+                }
+                required
+              />
 
-              <input type="text" placeholder="Image URL" value={formData.imageUrl}
-                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })} required />
+              <input
+                type="text"
+                placeholder="Image URL"
+                value={formData.imageUrl}
+                onChange={(e) =>
+                  setFormData({ ...formData, imageUrl: e.target.value })
+                }
+                required
+              />
 
-              <input type="text" placeholder="Sizes (comma separated)" value={formData.sizes}
-                onChange={(e) => setFormData({ ...formData, sizes: e.target.value })} />
+              <input
+                type="text"
+                placeholder="Sizes (comma separated)"
+                value={formData.sizes}
+                onChange={(e) =>
+                  setFormData({ ...formData, sizes: e.target.value })
+                }
+              />
 
-              <input type="number" placeholder="Rating" value={formData.rating}
-                onChange={(e) => setFormData({ ...formData, rating: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Rating"
+                value={formData.rating}
+                onChange={(e) =>
+                  setFormData({ ...formData, rating: e.target.value })
+                }
+              />
 
-              <input type="number" placeholder="Discount %" value={formData.discountPercentage}
-                onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })} />
+              <input
+                type="number"
+                placeholder="Discount %"
+                value={formData.discountPercentage}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    discountPercentage: e.target.value,
+                  })
+                }
+              />
 
-              <textarea placeholder="Description" value={formData.desc}
-                onChange={(e) => setFormData({ ...formData, desc: e.target.value })} className="col-span-full" />
+              <textarea
+                placeholder="Description"
+                value={formData.desc}
+                onChange={(e) =>
+                  setFormData({ ...formData, desc: e.target.value })
+                }
+                className="col-span-full"
+              />
 
-              <button type="submit" className="col-span-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+              <button
+                type="submit"
+                className="col-span-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
+              >
                 Add Product
               </button>
             </form>
-
           </div>
         )}
 
@@ -343,7 +491,10 @@ const AdminDashboard = () => {
             {/* Profile Settings */}
             <section className="relative z-10 group">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2 transition-all">
-                <Settings className="text-blue-600 group-hover:rotate-90 transition-transform duration-300" size={20} />
+                <Settings
+                  className="text-blue-600 group-hover:rotate-90 transition-transform duration-300"
+                  size={20}
+                />
                 Profile Settings
               </h2>
 
@@ -389,7 +540,9 @@ const AdminDashboard = () => {
             {/* Password Settings */}
             <section className="relative z-10 group">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <span className="group-hover:scale-110 transition-transform duration-300">🔒</span>
+                <span className="group-hover:scale-110 transition-transform duration-300">
+                  🔒
+                </span>
                 Change Password
               </h2>
               <form
@@ -446,11 +599,14 @@ const AdminDashboard = () => {
                 🎨 Theme Preferences
               </h2>
               <div className="flex items-center justify-between bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-                <span className="text-gray-800 dark:text-gray-100 font-medium">Dark Mode</span>
+                <span className="text-gray-800 dark:text-gray-100 font-medium">
+                  Dark Mode
+                </span>
                 <label className="relative inline-flex items-center cursor-pointer group">
                   <input
                     type="checkbox"
                     className="sr-only peer"
+                    checked={darkMode}
                     onChange={(e) => {
                       if (e.target.checked) {
                         document.documentElement.classList.add("dark");
@@ -466,7 +622,6 @@ const AdminDashboard = () => {
             </section>
           </div>
         )}
-
       </main>
     </div>
   );
