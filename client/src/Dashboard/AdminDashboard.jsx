@@ -608,11 +608,7 @@ const AdminDashboard = () => {
                     className="sr-only peer"
                     checked={darkMode}
                     onChange={(e) => {
-                      if (e.target.checked) {
-                        document.documentElement.classList.add("dark");
-                      } else {
-                        document.documentElement.classList.remove("dark");
-                      }
+                      setDarkMode(e.target.checked);
                     }}
                   />
                   <div className="w-12 h-6 bg-gray-300 dark:bg-gray-700 rounded-full peer peer-checked:bg-blue-600 transition-all relative overflow-hidden before:absolute before:content-['🌙'] before:left-1 before:top-1 before:text-xs before:opacity-0 peer-checked:before:opacity-100 after:content-['☀️'] after:absolute after:right-1 after:top-1 after:text-xs peer-checked:after:opacity-0 after:opacity-100"></div>
