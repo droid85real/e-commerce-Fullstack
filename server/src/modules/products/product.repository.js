@@ -77,6 +77,113 @@ export default class ProductRepository {
       throw new Error("Error getting filtered products: " + error.message);
     }
   }
+
+  // method to delete one product
+  async deleteOne(userId,userRole,productId) {
+    try {
+      const collection = await this.getCollection();
+
+      // validate id
+      if (!ObjectId.isValid(userId)) return { status: "INVALID_USER_ID" };
+      if (!ObjectId.isValid(productId)) return { status: "INVALID_PRODUCT_ID" };
+
+      if(userRole!=="admin"){
+        return { status: "UNAUTHORIZED" };
+      }
+
+      // attempt deletion
+      const result = await collection.deleteOne({
+        _id: ObjectId.createFromHexString(productId),
+      });
+
+      if (result.deletedCount === 0) {
+        return { status: "ITEM_NOT_FOUND" };
+      }
+
+      return { status: "SUCCESS" };
+    } catch (error) {
+      throw new Error("Error deleting product: " + error.message);
+    }
+  }
+
+  // method to add a new product
+  async addOne(userId,userRole,productData) {
+    try {
+      const collection = await this.getCollection();
+
+      if (!ObjectId.isValid(userId)) return { status: "INVALID_USER_ID" };
+
+      if(userRole!=="admin"){
+        return { status: "UNAUTHORIZED" };
+      }
+
+      // Detailed validation - check each field properly
+      const missingFields = [];
+      const invalidFields = [];
+
+      // Check required fields
+      if (!productData.name || productData.name.trim() === '') {
+        missingFields.push('name');
+      }
+      
+      if (!productData.desc || productData.desc.trim() === '') {
+        missingFields.push('description');
+      }
+      
+      if (!productData.price || isNaN(parseFloat(productData.price))) {
+        invalidFields.push('price - must be a valid number');
+      }
+      
+      if (!productData.imageUrl || productData.imageUrl.trim() === '') {
+        missingFields.push('imageUrl');
+      }
+      
+      if (!productData.category || productData.category.trim() === '') {
+        missingFields.push('category');
+      }
+
+      // Prepare error messages
+      let errorDetails = [];
+
+      if (missingFields.length > 0) {
+        errorDetails.push(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+    
+      if (invalidFields.length > 0) {
+        errorDetails.push(`Invalid fields: ${invalidFields.join(', ')}`);
+      }
+
+      // If any validation errors, return detailed message
+      if (errorDetails.length > 0) {
+        return { 
+          status: "INVALID_DATA", 
+          details: errorDetails.join('; ') 
+        };
+      }
+
+      // Create ProductModel instance
+      const newProduct = new ProductModel(
+        productData.name.trim(),
+        productData.desc.trim(),
+        parseFloat(productData.price),
+        productData.imageUrl.trim(),
+        productData.category.trim(),
+        productData.sizes || [],
+        parseFloat(productData.rating || 0),
+        parseFloat(productData.discountPercentage || 0)
+      );
+
+      const result = await collection.insertOne(newProduct);
+
+      if (result.insertedId) {
+        return { status: "SUCCESS", product: { _id: result.insertedId, ...newProduct } };
+      } else {
+        return { status: "ERROR" };
+      }
+    } catch (error) {
+      throw new Error("Error adding product: " + error.message);
+    }
+  }
 }
 
 // Sample test products
