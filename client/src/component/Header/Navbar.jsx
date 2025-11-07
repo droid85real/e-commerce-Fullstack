@@ -4,8 +4,8 @@ import { Menu, X, User } from "lucide-react";
 import { BsCart3 } from "react-icons/bs";
 import { TbLogin } from "react-icons/tb";
 import Search from "./Search";
-import Header from "./Index";
 import { useAuth } from "@/Context/AuthContext";
+import { FaHeadset } from "react-icons/fa";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -27,16 +27,28 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8 font-medium">
-          {["home", "trending", "Customer Support"].map((page) => (
             <button
-              key={page}
-              onClick={() => navigate(`/${page}`)}
+              onClick={() => navigate("home")}
               className="relative group transition-colors duration-300 capitalize"
             >
-              <span className="group-hover:text-blue-600">{page}</span>
+              <span className="group-hover:text-blue-600">Home</span>
               <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 group-hover:w-full transition-all duration-300"></span>
             </button>
-          ))}
+            <button
+              onClick={() => navigate("trending")}
+              className="relative group transition-colors duration-300 capitalize"
+            >
+              <span className="group-hover:text-blue-600 ">Trending </span>
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </button>
+            <button
+              onClick={() => navigate("support")}
+              className="relative group transition-colors duration-300 capitalize"
+            >
+              <span className="group-hover:text-blue-600 flex gap-1">Support Us<FaHeadset size={20}/></span>
+              <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+            </button>
+          
         </nav>
 
         {/* Right Section */}

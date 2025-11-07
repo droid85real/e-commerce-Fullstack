@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import {
   LayoutDashboard,
   Package,
@@ -10,6 +12,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { useAuth } from "@/Context/AuthContext";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -18,11 +21,25 @@ const AdminDashboard = () => {
   const [product, setProduct] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
+    desc: "",
     price: "",
     imageUrl: "",
-    description: "",
     category: "",
+    sizes: "",
+    rating: "",
+    discountPercentage: "",
   });
+    const { isAuthenticated, logout } = useAuth();
+
+  const categories = [
+    "Electronics",
+    "Clothing",
+    "Footwear",
+    "Accessories",
+    "Home & Kitchen",
+    "Beauty & Personal Care",
+    "Sports & Fitness",
+    "Toys & Games"];
 
   // 🌙 Apply theme mode
   useEffect(() => {
@@ -36,6 +53,7 @@ const AdminDashboard = () => {
   }, [darkMode]);
 
   // ✅ Fetch products
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -47,48 +65,63 @@ const AdminDashboard = () => {
       }
     };
     fetchProduct();
-  }, []);
+  }, [product]);
 
+
+  const navigate=useNavigate();
   // ✅ Delete Product
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  async function handleDelete(id) {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
     try {
-      const response = await fetch(`/api/products/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        setProduct((prev) => prev.filter((item) => item._id !== id));
-        alert("Product deleted successfully!");
-      } else alert("Failed to delete product.");
-    } catch (err) {
-      alert("Error deleting product.");
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success(data.message || "Product deleted successfully");
+        setProducts((prev) => prev.filter((p) => p._id !== id));
+      } else {
+        toast.error(data.message || "Failed to delete product");
+      }
+    } catch (error) {
+      toast.error("Server error while deleting");
     }
-  };
+  }
+
 
   const handleChange = (e) => setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleAddProduct = async (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.imageUrl) {
-      alert("Please fill all required fields!");
-      return;
-    }
 
-    try {
-      const response = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+    const payload = {
+      ...formData,
+      sizes: formData.sizes.split(",").map((s) => s.trim()),
+    };
+
+    const res = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      toast.success(data.message);
+      setProducts((prev) => [...prev, data.product]);
+      setFormData({
+        name: "",
+        desc: "",
+        price: "",
+        imageUrl: "",
+        category: "",
+        sizes: "",
+        rating: "",
+        discountPercentage: "",
       });
-
-      if (response.ok) {
-        const newProduct = await response.json();
-        setProduct((prev) => [...prev, newProduct]);
-        alert("✅ Product added successfully!");
-        setFormData({ name: "", price: "", imageUrl: "", description: "", category: "" });
-        setActiveTab("Products");
-      } else alert("❌ Failed to add product.");
-    } catch (err) {
-      console.error(err);
-      alert("Error adding product.");
+    } else {
+      toast.error(data.message);
     }
   };
 
@@ -112,9 +145,8 @@ const AdminDashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:static z-30 top-0 left-0 h-full md:h-auto w-64 bg-white dark:bg-gray-800 shadow-xl flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:static z-30 top-0 left-0 h-full md:h-auto w-64 bg-white dark:bg-gray-800 shadow-xl flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
         <div>
           <div className="hidden md:block p-6 text-2xl font-extrabold bg-gradient-to-r from-blue-700 to-blue-500 text-white text-center rounded-br-3xl">
@@ -128,11 +160,10 @@ const AdminDashboard = () => {
                   setActiveTab(item.name);
                   setSidebarOpen(false);
                 }}
-                className={`flex items-center gap-3 px-6 py-3 cursor-pointer rounded-md mx-3 mb-1 transition-all ${
-                  activeTab === item.name
-                    ? "bg-blue-600 text-white shadow-lg scale-[1.02]"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:scale-[1.02]"
-                }`}
+                className={`flex items-center gap-3 px-6 py-3 cursor-pointer rounded-md mx-3 mb-1 transition-all ${activeTab === item.name
+                  ? "bg-blue-600 text-white shadow-lg scale-[1.02]"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:scale-[1.02]"
+                  }`}
               >
                 {item.icon}
                 <span className="text-sm font-medium">{item.name}</span>
@@ -143,7 +174,12 @@ const AdminDashboard = () => {
 
         <div className="p-5 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-red-500 cursor-pointer transition-all">
           <LogOut size={20} />
-          <span className="text-sm font-semibold">Logout</span>
+          <button
+                onClick={() => {
+                if (isAuthenticated) logout();
+                else navigate("/login");
+              }}
+          className="text-sm font-semibold">Logout</button>
         </div>
       </aside>
 
@@ -193,13 +229,12 @@ const AdminDashboard = () => {
                       <td className="p-3">{order.customer}</td>
                       <td className="p-3">{order.amount}</td>
                       <td
-                        className={`p-3 font-medium ${
-                          order.status === "Delivered"
-                            ? "text-green-600"
-                            : order.status === "Pending"
+                        className={`p-3 font-medium ${order.status === "Delivered"
+                          ? "text-green-600"
+                          : order.status === "Pending"
                             ? "text-yellow-500"
                             : "text-blue-500"
-                        }`}
+                          }`}
                       >
                         {order.status}
                       </td>
@@ -256,173 +291,181 @@ const AdminDashboard = () => {
         {activeTab === "Add Product" && (
           <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl shadow-md max-w-lg mx-auto hover:shadow-lg transition-all duration-500">
             <h2 className="text-xl md:text-2xl font-semibold mb-6 text-center">Add New Product</h2>
-            <form onSubmit={handleAddProduct} className="space-y-5">
-              {["name", "price", "imageUrl", "category"].map((field) => (
-                <div key={field}>
-                  <label className="block mb-1 text-sm font-medium capitalize">{field === "imageUrl" ? "Image URL" : field}</label>
-                  <input
-                    type={field === "price" ? "number" : "text"}
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900 transition"
-                    placeholder={`Enter ${field}`}
-                  />
-                </div>
-              ))}
-              <div>
-                <label className="block mb-1 text-sm font-medium">Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900"
-                  placeholder="Write short product details"
-                ></textarea>
-              </div>
+            <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-xl">
+              <input type="text" placeholder="Product Name" value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
 
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition hover:shadow-lg hover:shadow-blue-500/20"
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                required
+                className="border p-2 rounded-lg"
               >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+
+              <input type="number" placeholder="Price" value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
+
+              <input type="text" placeholder="Image URL" value={formData.imageUrl}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })} required />
+
+              <input type="text" placeholder="Sizes (comma separated)" value={formData.sizes}
+                onChange={(e) => setFormData({ ...formData, sizes: e.target.value })} />
+
+              <input type="number" placeholder="Rating" value={formData.rating}
+                onChange={(e) => setFormData({ ...formData, rating: e.target.value })} />
+
+              <input type="number" placeholder="Discount %" value={formData.discountPercentage}
+                onChange={(e) => setFormData({ ...formData, discountPercentage: e.target.value })} />
+
+              <textarea placeholder="Description" value={formData.desc}
+                onChange={(e) => setFormData({ ...formData, desc: e.target.value })} className="col-span-full" />
+
+              <button type="submit" className="col-span-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
                 Add Product
               </button>
             </form>
+
           </div>
         )}
 
-   {activeTab === "Settings" && (
-  <div className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 md:p-10 rounded-2xl shadow-2xl max-w-3xl mx-auto space-y-10 transition-all duration-500">
-    {/* ✨ Floating Glow Animation */}
-    <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 blur-3xl pointer-events-none"></div>
+        {activeTab === "Settings" && (
+          <div className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6 md:p-10 rounded-2xl shadow-2xl max-w-3xl mx-auto space-y-10 transition-all duration-500">
+            {/* ✨ Floating Glow Animation */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 blur-3xl pointer-events-none"></div>
 
-    {/* Profile Settings */}
-    <section className="relative z-10 group">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2 transition-all">
-        <Settings className="text-blue-600 group-hover:rotate-90 transition-transform duration-300" size={20} />
-        Profile Settings
-      </h2>
+            {/* Profile Settings */}
+            <section className="relative z-10 group">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2 transition-all">
+                <Settings className="text-blue-600 group-hover:rotate-90 transition-transform duration-300" size={20} />
+                Profile Settings
+              </h2>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          alert("Profile updated successfully!");
-        }}
-        className="space-y-4 bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
-      >
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Admin Name
-          </label>
-          <input
-            type="text"
-            defaultValue="Admin User"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-all"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email Address
-          </label>
-          <input
-            type="email"
-            defaultValue="admin@example.com"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-all"
-          />
-        </div>
-        <button
-          type="submit"
-          className="relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg overflow-hidden group transition-all"
-        >
-          <span className="relative z-10">💾 Save Changes</span>
-          <span className="absolute inset-0 bg-blue-400 opacity-0 group-hover:opacity-20 blur-lg transition"></span>
-        </button>
-      </form>
-    </section>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert("Profile updated successfully!");
+                }}
+                className="space-y-4 bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Admin Name
+                  </label>
+                  <input
+                    type="text"
+                    defaultValue="Admin User"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    defaultValue="admin@example.com"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="relative bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg overflow-hidden group transition-all"
+                >
+                  <span className="relative z-10">💾 Save Changes</span>
+                  <span className="absolute inset-0 bg-blue-400 opacity-0 group-hover:opacity-20 blur-lg transition"></span>
+                </button>
+              </form>
+            </section>
 
-    <hr className="border-gray-300 dark:border-gray-700" />
+            <hr className="border-gray-300 dark:border-gray-700" />
 
-    {/* Password Settings */}
-    <section className="relative z-10 group">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-        <span className="group-hover:scale-110 transition-transform duration-300">🔒</span>
-        Change Password
-      </h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          alert("Password changed successfully!");
-        }}
-        className="space-y-4 bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
-      >
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Current Password
-          </label>
-          <input
-            type="password"
-            placeholder="Enter current password"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            New Password
-          </label>
-          <input
-            type="password"
-            placeholder="Enter new password"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Confirm New Password
-          </label>
-          <input
-            type="password"
-            placeholder="Confirm new password"
-            className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-md hover:shadow-green-400/30"
-        >
-          ✅ Update Password
-        </button>
-      </form>
-    </section>
+            {/* Password Settings */}
+            <section className="relative z-10 group">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <span className="group-hover:scale-110 transition-transform duration-300">🔒</span>
+                Change Password
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert("Password changed successfully!");
+                }}
+                className="space-y-4 bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all"
+              >
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter current password"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Enter new password"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="Confirm new password"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-green-500 transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-lg transition-all hover:shadow-md hover:shadow-green-400/30"
+                >
+                  ✅ Update Password
+                </button>
+              </form>
+            </section>
 
-    <hr className="border-gray-300 dark:border-gray-700" />
+            <hr className="border-gray-300 dark:border-gray-700" />
 
-    {/* Theme Settings */}
-    <section className="relative z-10">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2">
-        🎨 Theme Preferences
-      </h2>
-      <div className="flex items-center justify-between bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
-        <span className="text-gray-800 dark:text-gray-100 font-medium">Dark Mode</span>
-        <label className="relative inline-flex items-center cursor-pointer group">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            onChange={(e) => {
-              if (e.target.checked) {
-                document.documentElement.classList.add("dark");
-              } else {
-                document.documentElement.classList.remove("dark");
-              }
-            }}
-          />
-          <div className="w-12 h-6 bg-gray-300 dark:bg-gray-700 rounded-full peer peer-checked:bg-blue-600 transition-all relative overflow-hidden before:absolute before:content-['🌙'] before:left-1 before:top-1 before:text-xs before:opacity-0 peer-checked:before:opacity-100 after:content-['☀️'] after:absolute after:right-1 after:top-1 after:text-xs peer-checked:after:opacity-0 after:opacity-100"></div>
-          <div className="absolute w-5 h-5 bg-white rounded-full left-[2px] top-[2px] peer-checked:translate-x-6 transition-all shadow-md"></div>
-        </label>
-      </div>
-    </section>
-  </div>
-)}
+            {/* Theme Settings */}
+            <section className="relative z-10">
+              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                🎨 Theme Preferences
+              </h2>
+              <div className="flex items-center justify-between bg-white/60 dark:bg-gray-800/40 backdrop-blur-xl p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all">
+                <span className="text-gray-800 dark:text-gray-100 font-medium">Dark Mode</span>
+                <label className="relative inline-flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        document.documentElement.classList.add("dark");
+                      } else {
+                        document.documentElement.classList.remove("dark");
+                      }
+                    }}
+                  />
+                  <div className="w-12 h-6 bg-gray-300 dark:bg-gray-700 rounded-full peer peer-checked:bg-blue-600 transition-all relative overflow-hidden before:absolute before:content-['🌙'] before:left-1 before:top-1 before:text-xs before:opacity-0 peer-checked:before:opacity-100 after:content-['☀️'] after:absolute after:right-1 after:top-1 after:text-xs peer-checked:after:opacity-0 after:opacity-100"></div>
+                  <div className="absolute w-5 h-5 bg-white rounded-full left-[2px] top-[2px] peer-checked:translate-x-6 transition-all shadow-md"></div>
+                </label>
+              </div>
+            </section>
+          </div>
+        )}
 
       </main>
     </div>

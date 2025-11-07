@@ -10,6 +10,7 @@ import Home from "./Pages/Home.jsx";
 import Checkout from "./Pages/Checkout.jsx";
 import Trending from "./Pages/Trending.jsx";
 import AdminDashboard from "./Dashboard/AdminDashboard.jsx";
+import SupportUs from "./Pages/SupportUs.jsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       { path: "trending", element: <Trending/> },
       { path: "login", element: <AuthPage/> },
       { path: "home", element: <Home/> },
+      { path: "support", element: <SupportUs/> },
     ],
   },
   {
