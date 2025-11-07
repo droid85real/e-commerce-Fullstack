@@ -1,6 +1,6 @@
 // Cart.jsx
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import CartCard from "../Pages/CartCard";
 import { useAuth } from "@/Context/AuthContext";
 import { API_BASE } from "@/api";
@@ -151,7 +151,7 @@ const Cart = () => {
   const shipping = totalProducts > 0 ? 30 : 0;
   const total = totalProducts + shipping;
 
-  const checkout = () => navigate("/checkout");
+  const checkout = () => navigate("/checkout",{state:{total}});
 
   // ✅ Loading state
   if (loading)

@@ -4,6 +4,8 @@ import { ProductContext } from "../Context/ProductContext";
 import { toast } from "sonner";
 import { useAuth } from "@/Context/AuthContext";
 import { API_BASE } from "@/api";
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+
 
 const ProductDetails = () => {
   const { token } = useAuth();
@@ -66,6 +68,35 @@ const ProductDetails = () => {
     }
   };
 
+const [isWishlisted, setIsWishlisted] = useState(false);
+
+// Load wishlist state
+useEffect(() => {
+  const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+  const isAdded = wishlist.some((item) => item._id === id);
+  setIsWishlisted(isAdded);
+}, [id]);
+
+// Toggle wishlist function
+const toggleWishlist = () => {
+  const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  if (isWishlisted) {
+    // Remove from wishlist
+    const updated = wishlist.filter((item) => item._id !== id);
+    localStorage.setItem("wishlist", JSON.stringify(updated));
+    toast.info(`${product.name} removed from wishlist`);
+  } else {
+    // Add to wishlist
+    wishlist.push(product);
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    toast.success(`${product.name} added to wishlist`);
+  }
+
+  setIsWishlisted(!isWishlisted);
+};
+
+
   if (!product) return <div className="text-center py-20">Loading...</div>;
 
 
@@ -109,11 +140,10 @@ const ProductDetails = () => {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${
-                    selectedSize === size
+                  className={`px-4 py-2 rounded-full border text-sm font-medium transition-all ${selectedSize === size
                       ? "bg-blue-600 text-white border-blue-600"
                       : "border-gray-300 hover:border-blue-500 hover:text-blue-600"
-                  }`}
+                    }`}
                 >
                   {size}
                 </button>
@@ -134,6 +164,17 @@ const ProductDetails = () => {
               className="px-6 py-3 bg-blue-600 text-white font-medium rounded-md shadow-md hover:bg-blue-700 transition"
             >
               Go to Cart
+            </button>
+
+            <button
+              onClick={toggleWishlist}
+              className="p-3 rounded-full border border-gray-300 hover:border-pink-500 hover:bg-pink-50 transition"
+            >
+              {isWishlisted ? (
+                <AiFillHeart size={25} className="text-pink-600" />
+              ) : (
+                <AiOutlineHeart size={25} className="text-gray-600" />
+              )}
             </button>
           </div>
         </div>

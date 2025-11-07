@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const Checkout = () => {
     expDate: "",
     cvv: "",
   });
-
+const {state}=useLocation();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -32,7 +33,8 @@ const Checkout = () => {
     shipping: 30,
   };
 
-  const total = cartSummary.productTotal + cartSummary.shipping;
+
+    const total = state?.total;
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-6">
@@ -234,7 +236,8 @@ const Checkout = () => {
             type="submit"
             className="mt-8 w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
           >
-            Continue to checkout
+            <a href="https://x.razorpay.com/auth">  Continue to checkout</a>
+          
           </button>
         </form>
 
@@ -247,16 +250,16 @@ const Checkout = () => {
           <div className="space-y-3 text-gray-700">
             <div className="flex justify-between">
               <p>Products ({cartSummary.items})</p>
-              <p>${cartSummary.productTotal}</p>
+              <p>₹{total}</p>
             </div>
             <div className="flex justify-between">
               <p>Shipping</p>
-              <p>${cartSummary.shipping}</p>
+              <p>₹{cartSummary.shipping}</p>
             </div>
             <hr />
             <div className="flex justify-between text-lg font-bold">
               <p>Total amount</p>
-              <p>${total}</p>
+              <p>₹{total+cartSummary.shipping}</p>
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@ const ProductPage = () => {
       ? `${baseUrl}?${query.toString()}`
       : baseUrl;
 
-    console.log('Fetching from:', url); // Debug log
+    // console.log('Fetching from:', url); // Debug log
 
     const response = await fetch(url, { method: "GET", headers });
     if (!response.ok) {

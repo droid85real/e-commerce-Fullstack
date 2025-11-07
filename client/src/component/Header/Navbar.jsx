@@ -6,12 +6,14 @@ import { TbLogin } from "react-icons/tb";
 import Search from "./Search";
 import { useAuth } from "@/Context/AuthContext";
 import { FaHeadset } from "react-icons/fa";
+import { AiOutlineHeart } from "react-icons/ai";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  
 
   return (
     <header className="fixed w-full z-20 bg-white shadow-md border-b border-gray-200">
@@ -67,6 +69,22 @@ const Navbar = () => {
           >
             <User size={22} className="text-gray-600 hover:text-blue-600" />
           </button>
+
+   {/* Wishlist */}
+<button
+  onClick={() => navigate("/wishlist")}
+  className="hidden sm:flex items-center relative cursor-pointer group"
+>
+  <span className="group-hover:text-pink-500 transition-colors duration-300 flex items-center">
+    Wishlist <AiOutlineHeart className="ml-2" size={18} />
+  </span>
+
+  {/* Animated underline */}
+  <span className="absolute left-0 bottom-[-4px] w-0 h-[2px] bg-pink-500 group-hover:w-full transition-all duration-300"></span>
+
+</button>
+
+
 
           {/* Cart */}
           <button
