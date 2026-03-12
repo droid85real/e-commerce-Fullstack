@@ -19,7 +19,7 @@ const Cart = () => {
       const res = await fetch(`${API_BASE}/api/cart`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -82,7 +82,7 @@ const Cart = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ productId, quantity }),
       });
@@ -99,7 +99,7 @@ const Cart = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -122,7 +122,7 @@ const Cart = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
         },
       });
 

@@ -17,7 +17,7 @@ const ProductPage = () => {
 
   const fetchData = async (filters = {}) => {
     let headers = { "Content-Type": "application/json" };
-    if (token) headers["Authorization"] = token;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
     // Build query string
     let query = new URLSearchParams();
