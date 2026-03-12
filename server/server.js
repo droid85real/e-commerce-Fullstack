@@ -7,6 +7,8 @@ import cors from "./src/config/cors.js";
 import jwtAuth from "./src/middleware/jwt.middleware.js";
 import cartRoutes from "./src/modules/carts/cart.routes.js";
 import { connectToMongoDB } from "./src/config/mongodb.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./src/config/swagger.js";
 
 //create server
 const server = express();
@@ -48,6 +50,9 @@ const startServer = async () => {
 
     // all cart req are redirected to cart.routes.js
     server.use("/api/cart", jwtAuth, cartRoutes);
+
+    // Swagger docs route
+    server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     // middleware to handle 404 req
     server.use((req, res) => {
